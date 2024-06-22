@@ -1,53 +1,9 @@
 # RESOURCES
 # https://docs.streamlit.io/develop/api-reference
-
-# VERSION 1
-
-# Foursquare
-# 1. https://docs.foursquare.com/developer/reference/address-directory
-# 2. https://docs.foursquare.com/developer/reference/address-form-autofill
-# 3. https://docs.foursquare.com/developer/reference/local-search-map
-
-# Folium
-# 1. https://folium.streamlit.app/
-# 2. https://realpython.com/python-folium-web-maps-from-data/
-
-# Stremlit Pills
-# 1. https://pypi.org/project/streamlit-pills/
-# 2. https://discuss.streamlit.io/t/how-to-add-a-title-text-or-few-sample-prompts-close-to-the-chat-input/64757
-
-# Standardize Text
-# 1. https://pypi.org/project/Unidecode/
-# 2. https://pypi.org/project/anyascii/0.1.6/
-
-#--------------------------------------------------------------------------------------------------------------
-
-# VERSION 2:
-
-# Streamlit Range Slider
-# https://docs.streamlit.io/develop/api-reference/widgets/st.slider
-
-# Gradient Animation
-# https://lottiefiles.com/animations/gradient-loader-02-juQh1tTYA0
-# https://lottie.host/ca52053c-bcc2-423b-9258-1e2ebe84aa4f/vE2uf9LsAY.json
-# https://lottie.host/f34a0bc0-4b98-4632-8684-4fbfadf0806f/8qPOuRLkVc.json
-# https://lottie.host/bfc80cbd-79f1-4d62-ad2d-89f4e9f3278d/Z1fopF3tEc.json
-
-# Select Box
-# https://docs.streamlit.io/develop/api-reference/widgets/st.selectbox
-
-# Toast
-# https://docs.streamlit.io/develop/api-reference/status/st.toast
-# https://fonts.google.com/icons?icon.set=Material+Symbols&icon.style=Outlined
-
-# Geolocation
-# https://pypi.org/project/streamlit-geolocation/
-
-# Divider
-# https://docs.streamlit.io/develop/api-reference/text/st.divider
-
-# Infomation Message
-# https://docs.streamlit.io/develop/api-reference/status/st.info
+# https://www.earthdatascience.org/tutorials/introduction-to-leaflet-animated-maps/
+# *https://python-visualization.github.io/folium/latest/user_guide/map.html
+# *https://python-visualization.github.io/folium/latest/user_guide/plugins/featuregroup_subgroup.html
+# *https://python-visualization.github.io/folium/version-v0.10.1/modules.html
 
 ###############################################################################################################
 
@@ -56,6 +12,7 @@
 import streamlit as st # Version 1
 # st.set_page_config(layout="wide")
 from streamlit_lottie import st_lottie # Version 2
+from streamlit_folium import folium_static
 
 import requests # library to handle requests # Version 1
 import numpy as np # library to handle data in a vectorized manner # Version 1
@@ -72,7 +29,7 @@ from pandas import json_normalize # tranform JSON file into a pandas dataframe #
 
 # !conda install -c conda-forge folium=0.5.0 --yes
 import folium # plotting library # Version 1
-# from streamlit_folium import st_folium # type: ignore
+from folium.plugins import MousePosition
 
 import pandas as pd # library for data analsysis
 pd.set_option('display.max_columns', None) # Version 1
@@ -83,6 +40,8 @@ import time # Version 2
 import geopandas as gpd
 import folium
 from folium.plugins import HeatMap
+import plotly.express as px
+import plotly.graph_objects as go
 
 print('Libraries Imported')
 
@@ -100,6 +59,7 @@ def app():
     st.write("")
         
     st.title("Omdena OpenDevEd")
+    st.divider()
     
     st.write("")
     
@@ -155,12 +115,22 @@ def app():
     '''
     
     data = pd.read_csv('data.csv')
+    data.drop(data.columns[[0]], axis=1, inplace=True)
+    data['Region'] = data['Region'].apply(lambda x: x.title())
+    data['SchoolName'] = data['SchoolName'].apply(lambda x: x.title())
     
     st.map(data.rename(columns = {'Latitude': 'latitude', 'Longitude': 'longitude'}), zoom = 5)
+    
+    st.write('')
+    st.write('List of Regions: {}'.format(len(data['Region'].unique())))
+    # st.text(data['Region'].unique())
+    st.write('Total Schools: {}'.format(len(data['SchoolName'].unique())))
+    
+    st.divider()
        
     ############################################################################################################
     
-    address = 'Mwanza, Mwanza, Tanzania'
+    address = 'Tanzania'
 
     geolocator = Nominatim(user_agent="four_square")
     location = geolocator.geocode(address) # addressdetails=True
@@ -168,42 +138,17 @@ def app():
     longitude = location.longitude
     # print('The geograpical coordinate of {} are {}, {}.'.format(location, latitude, longitude)) # location.raw # ZipCode: location.address.split(",")[-2]#
 
-    '''
-    Map = folium.Map(location = [latitude, longitude], zoom_start = 6)
-
+    Map = folium.Map(location = [latitude, longitude], zoom_start = 7)
     Marker = folium.map.FeatureGroup()
     Marker.add_child(folium.CircleMarker([latitude, longitude],
-                                                radius = 5,
-                                                color = 'red',
-                                                fill_color = 'Red'))
+                                             radius = 7,
+                                             color = 'red',
+                                             fill_color = 'red',
+                                             fill_opacity=0.7))
     Map.add_child(Marker)
     folium.Marker([latitude, longitude], popup = address).add_to(Map)
-
-    st.pydeck_chart(Map)
-    '''
-    
-    ############################################################################################################
-    
-    """
-    for i in range(data.shape[0]):
-
-        '''
-        geolocator = Nominatim(user_agent="four_square")
-        location = geolocator.geocode(df.City[i] + ', ' + status.Region[i] + ', Tanzania')
-        latitude = location.latitude
-        longitude = location.longitude
-        # print('{}: The geograpical coordinate of {} are {}, {}.'.format(i+1, location, latitude, longitude)) # location.raw
-        '''
-
-        Marker.add_child(folium.CircleMarker([data['Latitude'][i], data['Longitude'][i]],
-                                                    radius = 5,
-                                                    color = 'blue',
-                                                    fill_color = 'blue'))
-        Map.add_child(Marker)
-        folium.Marker([latitude, longitude], popup = data['SchoolName'][i]).add_to(Map)
-
-    # st.plotly_chart(Map)
-    """
+    MousePosition().add_to(Map)
+    # rfolium_static(Map)
     
     ############################################################################################################
     
@@ -283,8 +228,8 @@ def app():
     
     ############################################################################################################
     
-    st.write('*List of Regions:')
-    st.text(sorted(status['Region'].unique()))
+    # st.write('*List of Regions:')
+    # st.text(sorted(status['Region'].unique()))
     # st.write('\nList of Councils')
     # st.text(sorted(data['Council'].unique()))
     # st.write('\nList Wards:')
@@ -297,101 +242,113 @@ def app():
     # Adding a sidebar with select boxes
     st.sidebar.header('Select a Location: ')
     region = st.sidebar.selectbox('Select Region', 
-                                  tuple(sorted(set(list(status['Region'])))),
+                                  tuple(sorted(set(list(data['Region'])))),
                                   index=None,
                                   placeholder="Select Region")
 
     if region:
+        """
         map = status.loc[(status['Region'] == region)]
+        map.drop(map.columns[[0]], axis=1, inplace=True)
         # st.dataframe(map)
         st.map(map.rename(columns = {'Latitude': 'latitude', 'Longitude': 'longitude'}), zoom = 7)
-            
-        ############################################################################################################
-         
-        """    
-        place = st.sidebar.selectbox('Select Place', 
-                                     tuple(sorted(set(list(status[status['Region'] == region]['Place'])))),
-                                     index=None,
-                                     placeholder="Select Place")
+    
+        map = data.loc[(data['Region'] == region)]
+        # st.dataframe(map)
         
-        if place:   
-            # map = status.loc[(status['Region'] == region) & (status['Place'] == place)]
-            # st.dataframe(map)            
-            # st.map(map.rename(columns = {'Latitude': 'latitude', 'Longitude': 'longitude'}), zoom = 12)
+        for idx, row in map.iterrows():
+                folium.Marker([row['Latitude'], 
+                               row['Longitude']], 
+                               popup = "School Name: " + row['SchoolName'] + ", Ownership Type: " + row['Ownership']).add_to(Map)
+
+        folium_static(Map)
+        """
+        
+        ############################################################################################################
             
-            ############################################################################################################
-            
-            ownership = st.sidebar.selectbox('Select Ownership', 
-                                        tuple(sorted(set(list(status.loc[(status['Region'] == region) & (status['Place'] == place)]['Ownership'])))),
+        ownership = st.sidebar.selectbox('Select Ownership', 
+                                        tuple(sorted(set(list(status.loc[(status['Region'] == region)]['Ownership'])))),
                                         index=None,
                                         placeholder="Select Ownership")
             
-            if ownership:   
-                map = status.loc[(status['Region'] == region) & (status['Place'] == place) & (status['Ownership'] == ownership)]
-                map.drop(map.columns[[0]], axis=1, inplace=True)
-                # st.dataframe(map)            
-                st.map(map.rename(columns = {'Latitude': 'latitude', 'Longitude': 'longitude'}), zoom = 12)
-                """
-                
-                             
-        URL = BASEURL + "/current.json?key=" + APIKEY + "&q=" + ', ' + region + ', Tanzania' + "&aqi=yes"
-                
-        # HTTP request
-        response = requests.get(URL)
-        # checking the status code of the request
-        # if response.status_code == 200:
+        if ownership:   
+            """
+            map = status.loc[(status['Region'] == region) & (status['Place'] == place) & (status['Ownership'] == ownership)]
+            map.drop(map.columns[[0]], axis=1, inplace=True)
+            # st.dataframe(map)            
+            st.map(map.rename(columns = {'Latitude': 'latitude', 'Longitude': 'longitude'}), zoom = 12)
+            """
+            
+            map = data.loc[(data['Region'] == region) & (status['Ownership'] == ownership)]
+            # st.dataframe(map)
+            
+            for idx, row in map.iterrows():
+                    folium.Marker([row['Latitude'], 
+                                row['Longitude']], 
+                                popup = "School Name: " + row['SchoolName']).add_to(Map)
+
+            folium_static(Map)
                     
-        # getting data in the json format
-        data = response.json()
-                
-        """ 
-        st.header(f"Location Demographics for {region}")
-               
-        P1, P2, P3 = st.columns(3)
-        P1.metric(label = "Place",     value = response.json()["location"]['name'])
-        P1.metric(label = "Region",    value = response.json()['location']['region'])
-        P1.metric(label = "Country",   value = response.json()['location']['country'])
-        P2.metric(label = "Latitude",  value = str(response.json()['location']['lat']))
-        P2.metric(label = "Longitude", value = str(response.json()['location']['lon']))
-        P3.metric(label = "Date",      value = response.json()['location']['localtime'].split()[0])
-        P3.metric(label = "Time",      value = response.json()['location']['localtime'].split()[1])
-        """
-                
-        st.write("")
-        st.write("")
-        st.write("")
-        st.header(f"Concentration of Pollutants in {region}")
-                
-        P1, P2, P3, P4, P5, P6 = st.columns(6)
-        P1.metric(label = "CO",    value = str(round(response.json()['current']["air_quality"]["co"], 2)))
-        P2.metric(label = "NO2",   value = str(round(response.json()['current']["air_quality"]["no2"], 2)))
-        P3.metric(label = "O3",    value = str(round(response.json()['current']["air_quality"]["o3"], 2)))
-        P4.metric(label = "SO2",   value = str(round(response.json()['current']["air_quality"]["so2"], 2)))
-        P5.metric(label = "PM2.5", value = str(round(response.json()['current']["air_quality"]["pm2_5"], 2)))
-        P6.metric(label = "PM10",  value = str(round(response.json()['current']["air_quality"]["pm10"], 2)))
-                
-        st.write("")
-        st.write("")
-        st.write("")
-        st.header(f"Weather Attributes for {region}")
+            st.divider()
+            
+            ########################################################################################################
+                   
+            URL = BASEURL + "/current.json?key=" + APIKEY + "&q=" + ', ' + region + ', Tanzania' + "&aqi=yes"
+                    
+            # HTTP request
+            response = requests.get(URL)
+            # checking the status code of the request
+            # if response.status_code == 200:
                         
-        P1, P2, P3, P4, P5, P6, P7 = st.columns(7)
-        P1.metric(label = "Wind Speed (mph): ",  value = str(response.json()['current']["wind_mph"]))
-        P1.metric(label = "Wind Degree: ",       value = str(response.json()['current']["wind_degree"]))
-        P1.metric(label = "Wind Direction: ",    value = response.json()['current']["wind_dir"])
+            # getting data in the json format
+            # data = response.json()
+                    
+            """ 
+            st.header(f"Location Demographics for {region}")
                 
-        P2.metric(label = "Gust (mph): ",  value = str(response.json()['current']["gust_mph"])) 
-                
-        P3.metric(label = "Pressure (ml): ",  value = str(response.json()['current']["pressure_mb"]))
-                
-        P4.metric(label = "Precipation (mm): ",    value = str(response.json()['current']["precip_mm"]))      
-                
-        P5.metric(label = "Temperature (C): ",  value = str(response.json()['current']["feelslike_c"])) 
-                
-        P6.metric(label = "Visibility (miles): ",  value = str(response.json()['current']["vis_miles"]))
-                
-        P7.metric(label = "Humidity: ",  value = str(response.json()['current']["humidity"]))
-        P7.metric(label = "Cloud: ",     value = str(response.json()['current']["cloud"]))
-        P7.metric(label = "UV: ",        value = str(response.json()['current']["uv"]))
-                        
-                
+            P1, P2, P3 = st.columns(3)
+            P1.metric(label = "Place",     value = response.json()["location"]['name'])
+            P1.metric(label = "Region",    value = response.json()['location']['region'])
+            P1.metric(label = "Country",   value = response.json()['location']['country'])
+            P2.metric(label = "Latitude",  value = str(response.json()['location']['lat']))
+            P2.metric(label = "Longitude", value = str(response.json()['location']['lon']))
+            P3.metric(label = "Date",      value = response.json()['location']['localtime'].split()[0])
+            P3.metric(label = "Time",      value = response.json()['location']['localtime'].split()[1])
+            """
+                    
+            st.write("")
+            st.write("")
+            st.write("")
+            st.header(f"Concentration of Pollutants in {region}")
+                    
+            P1, P2, P3, P4, P5, P6 = st.columns(6)
+            P1.metric(label = "CO",    value = str(round(response.json()['current']["air_quality"]["co"], 2)))
+            P2.metric(label = "NO2",   value = str(round(response.json()['current']["air_quality"]["no2"], 2)))
+            P3.metric(label = "O3",    value = str(round(response.json()['current']["air_quality"]["o3"], 2)))
+            P4.metric(label = "SO2",   value = str(round(response.json()['current']["air_quality"]["so2"], 2)))
+            P5.metric(label = "PM2.5", value = str(round(response.json()['current']["air_quality"]["pm2_5"], 2)))
+            P6.metric(label = "PM10",  value = str(round(response.json()['current']["air_quality"]["pm10"], 2)))
+                    
+            st.write("")
+            st.write("")
+            st.write("")
+            st.header(f"Weather Attributes for {region}")
+                            
+            P1, P2, P3, P4, P5, P6, P7 = st.columns(7)
+            P1.metric(label = "Wind Speed (mph): ",  value = str(response.json()['current']["wind_mph"]))
+            P1.metric(label = "Wind Degree: ",       value = str(response.json()['current']["wind_degree"]))
+            P1.metric(label = "Wind Direction: ",    value = response.json()['current']["wind_dir"])
+                    
+            P2.metric(label = "Gust (mph): ",  value = str(response.json()['current']["gust_mph"])) 
+                    
+            P3.metric(label = "Pressure (ml): ",  value = str(response.json()['current']["pressure_mb"]))
+                    
+            P4.metric(label = "Precipation (mm): ",    value = str(response.json()['current']["precip_mm"]))      
+                    
+            P5.metric(label = "Temperature (C): ",  value = str(response.json()['current']["feelslike_c"])) 
+                    
+            P6.metric(label = "Visibility (miles): ",  value = str(response.json()['current']["vis_miles"]))
+                    
+            P7.metric(label = "Humidity: ",  value = str(response.json()['current']["humidity"]))
+            P7.metric(label = "Cloud: ",     value = str(response.json()['current']["cloud"]))
+            P7.metric(label = "UV: ",        value = str(response.json()['current']["uv"]))
