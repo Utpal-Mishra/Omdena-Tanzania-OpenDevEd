@@ -9,35 +9,35 @@
 
 # LIBRARIES
 
-import streamlit as st # Version 1
+import streamlit as st
 # st.set_page_config(layout="wide")
-from streamlit_lottie import st_lottie # Version 2
+from streamlit_lottie import st_lottie
 from streamlit_folium import folium_static
 
-import requests # library to handle requests # Version 1
-import numpy as np # library to handle data in a vectorized manner # Version 1
-import random # library for random number generation # Version 1
+import requests # library to handle requests
+import numpy as np # library to handle data in a vectorized manner
+import random # library for random number generation
 
 # !conda install -c conda-forge geopy --yes
-from geopy.geocoders import Nominatim # module to convert an address into latitude and longitude values # Version 1
+from geopy.geocoders import Nominatim # module to convert an address into latitude and longitude values
 import geocoder
 
 import json # library to handle JSON files
 
 # from pandas.io.json import json_normalize
-from pandas import json_normalize # tranform JSON file into a pandas dataframe # Version 1
+from pandas import json_normalize # tranform JSON file into a pandas dataframe
 
 # !conda install -c conda-forge folium=0.5.0 --yes
 import folium # plotting library # Version 1
 from folium.plugins import MousePosition
 
 import pandas as pd # library for data analsysis
-pd.set_option('display.max_columns', None) # Version 1
-pd.set_option('display.max_rows', None) # Version 1
+pd.set_option('display.max_columns', None)
+pd.set_option('display.max_rows', None)
 
-import time # Version 2
+import time
 
-import geopandas as gpd
+# import geopandas as gpd
 import folium
 from folium.plugins import HeatMap
 import plotly.express as px
