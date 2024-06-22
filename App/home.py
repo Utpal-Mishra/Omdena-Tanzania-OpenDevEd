@@ -58,16 +58,18 @@ def app():
     
     st.write("")
         
-    st.title("Omdena OpenDevEd")
-    st.divider()
+    st.title("OMDENA OpenDevEd")
+    st.header("AI-Driven Temperature Analysis for Educational Environments in Tanzania")
     
-    st.write("")
+    st.subheader("PROBLEM: \nIn countries with a hot climate, such as Tanzania, many schools experience classroom conditions characterized by extreme temperatures, which can severely impede the learning process and pose significant health risks to students. The primary challenge lies in the lack of detailed, actionable data regarding specific classroom features that influence indoor temperatures, such as roofing materials and the presence or absence of ceiling boards. Traditional methods for monitoring and improving these conditions often fall short because they do not provide the precise, localized information necessary for effective intervention.")
+    st.subheader("Impact of the Problem: \n1. Ineffective Learning Environments \n2. Health Risks \n3. Inadequate Resource Allocation \n4. Barriers to Policy Implementation")
+    st.subheader("GOAL: \nThe primary goal of this project is to develop an AI-driven predictive model using satellite imagery and environmental data to estimate indoor classroom temperatures in Tanzanian schools, enhancing learning environments and health safety. The model aims to determine temperature conditions based on observable features like roofing material, which need to be complemented with classroom specifications (including the presence of ceiling boards). The project unfolds over a 8+2-week cycle, each phase planned to ensure successful development and deployment: \n1. Data Collection and Resources \n2. Problem Definition and Model Development \n3. Temperature Range Detection \n4. Visualization and Reporting \n5. Flood Risk Assessment \n6. Deliverables and Optimization")
+    
+    st.divider()
     
     st.header("Gelocation of Schools in Tanzania")
     
-    st.write("")
-    st.write("")
-    
+    st.write("")    
         
     # ---------------------------------------------------------------------------------------------------------   
     
@@ -121,10 +123,12 @@ def app():
     
     st.map(data.rename(columns = {'Latitude': 'latitude', 'Longitude': 'longitude'}), zoom = 5)
     
+    ############################################################################################################
+    
     st.write('')
-    st.write('List of Regions: {}'.format(len(data['Region'].unique())))
+    st.write('*List of Regions: {}'.format(len(data['Region'].unique())))
     # st.text(data['Region'].unique())
-    st.write('Total Schools: {}'.format(len(data['SchoolName'].unique())))
+    st.write('*Total Schools: {}'.format(len(data['SchoolName'].unique())))
     
     st.divider()
        
@@ -225,16 +229,7 @@ def app():
     """
     
     status = pd.read_csv('status.csv')
-    
-    ############################################################################################################
-    
-    # st.write('*List of Regions:')
-    # st.text(sorted(status['Region'].unique()))
-    # st.write('\nList of Councils')
-    # st.text(sorted(data['Council'].unique()))
-    # st.write('\nList Wards:')
-    # st.text(sorted(data['Ward'].unique()))
-    
+        
     ############################################################################################################
     
     map = st.empty()
