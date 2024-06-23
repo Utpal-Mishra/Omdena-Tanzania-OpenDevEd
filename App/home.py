@@ -54,16 +54,16 @@ st.toast('Welcome to Omdena OpenDevEd!!!', icon='🎉')
 # @st.cache_data(experimental_allow_widgets=True)
 def app():
     
+    st.write("")
+            
+    st.title("OMDENA OpenDevEd")
+    st.header("AI-Driven Temperature Analysis for Educational Environments in Tanzania")
+        
     tab1, tab2 = st.tabs(["About", "Schools"])
     
     ###########################################################################################################
     
     with tab1: 
-        
-        st.write("")
-            
-        st.title("OMDENA OpenDevEd")
-        st.header("AI-Driven Temperature Analysis for Educational Environments in Tanzania")
         
         st.subheader("PROBLEM: \nIn countries with a hot climate, such as Tanzania, many schools experience classroom conditions characterized by extreme temperatures, which can severely impede the learning process and pose significant health risks to students. The primary challenge lies in the lack of detailed, actionable data regarding specific classroom features that influence indoor temperatures, such as roofing materials and the presence or absence of ceiling boards. Traditional methods for monitoring and improving these conditions often fall short because they do not provide the precise, localized information necessary for effective intervention.")
         st.subheader("Impact of the Problem: \n1. Ineffective Learning Environments \n2. Health Risks \n3. Inadequate Resource Allocation \n4. Barriers to Policy Implementation")
