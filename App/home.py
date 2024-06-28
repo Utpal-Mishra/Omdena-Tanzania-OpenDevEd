@@ -4,6 +4,7 @@
 # *https://python-visualization.github.io/folium/latest/user_guide/map.html
 # *https://python-visualization.github.io/folium/latest/user_guide/plugins/featuregroup_subgroup.html
 # *https://python-visualization.github.io/folium/version-v0.10.1/modules.html
+# https://openweathermap.org/current
 
 ###############################################################################################################
 
@@ -42,6 +43,9 @@ import folium
 from folium.plugins import HeatMap
 import plotly.express as px
 import plotly.graph_objects as go
+
+
+st.set_page_config(page_title="OpenDevEd") #, layout="wide")
 
 print('Libraries Imported')
 
@@ -288,18 +292,7 @@ def app():
             st.divider()
             
             ############################################################################################################
-            
-            Map = folium.Map(location = [latitude, longitude], zoom_start = 6)
-            Marker = folium.map.FeatureGroup()
-            Marker.add_child(folium.CircleMarker([latitude, longitude],
-                                                    radius = 7,
-                                                    color = 'red',
-                                                    #fill_color = 'red',
-                                                    fill_opacity=0.7))
-            Map.add_child(Marker)
-            folium.Marker([latitude, longitude], popup = address, icon=folium.Icon(color = 'red', icon = "home")).add_to(Map)
-            MousePosition().add_to(Map)
-                
+                            
             council = st.sidebar.selectbox('Select Council', 
                                             tuple(sorted(set(list(data.loc[(data['Region'] == region)]['Council'])))),
                                             index=None,
@@ -315,17 +308,8 @@ def app():
                 map = data.loc[(data['Region'] == region) & (data['Council'] == council)]
                 # st.dataframe(map)
                 
-                for idx, row in map.iterrows():
-                        folium.Marker([row['Latitude'], 
-                                    row['Longitude']], 
-                                    popup = "School Name: " + row['SchoolName']).add_to(Map)
-
-                folium_static(Map)
-                        
-                st.divider()
-                
-                ############################################################################################################
-            
+                # latitude = map.loc[:, 'Latitude'].mean()
+                # longitude = map.loc[:, 'Longitude'].mean()
                 Map = folium.Map(location = [latitude, longitude], zoom_start = 6)
                 Marker = folium.map.FeatureGroup()
                 Marker.add_child(folium.CircleMarker([latitude, longitude],
@@ -336,7 +320,18 @@ def app():
                 Map.add_child(Marker)
                 folium.Marker([latitude, longitude], popup = address, icon=folium.Icon(color = 'red', icon = "home")).add_to(Map)
                 MousePosition().add_to(Map)
-                    
+            
+                for idx, row in map.iterrows():
+                        folium.Marker([row['Latitude'], 
+                                    row['Longitude']], 
+                                    popup = "School Name: " + row['SchoolName']).add_to(Map)
+
+                folium_static(Map)
+                        
+                st.divider()
+                
+                ############################################################################################################
+                               
                 ward = st.sidebar.selectbox('Select Ward', 
                                                 tuple(sorted(set(list(data.loc[(data['Region'] == region) & (data['Council'] == council)]['Ward'])))),
                                                 index=None,
@@ -352,17 +347,8 @@ def app():
                     map = data.loc[(data['Region'] == region) & (data['Council'] == council) & (data['Ward'] == ward)]
                     # st.dataframe(map)
                     
-                    for idx, row in map.iterrows():
-                            folium.Marker([row['Latitude'], 
-                                        row['Longitude']], 
-                                        popup = "School Name: " + row['SchoolName']).add_to(Map)
-
-                    folium_static(Map)
-                            
-                    st.divider()
-                
-                    ############################################################################################################
-                
+                    # latitude = map.loc[:, 'Latitude'].mean()
+                    # longitude = map.loc[:, 'Longitude'].mean()
                     Map = folium.Map(location = [latitude, longitude], zoom_start = 6)
                     Marker = folium.map.FeatureGroup()
                     Marker.add_child(folium.CircleMarker([latitude, longitude],
@@ -373,6 +359,17 @@ def app():
                     Map.add_child(Marker)
                     folium.Marker([latitude, longitude], popup = address, icon=folium.Icon(color = 'red', icon = "home")).add_to(Map)
                     MousePosition().add_to(Map)
+                    
+                    for idx, row in map.iterrows():
+                            folium.Marker([row['Latitude'], 
+                                        row['Longitude']], 
+                                        popup = "School Name: " + row['SchoolName']).add_to(Map)
+
+                    folium_static(Map)
+                            
+                    st.divider()
+                
+                    ############################################################################################################
                         
                     ownership = st.sidebar.selectbox('Select Ownership', 
                                                     tuple(sorted(set(list(data.loc[(status['Region'] == region) & (data['Council'] == council) & (data['Ward'] == ward)]['Ownership'])))),
@@ -389,6 +386,19 @@ def app():
                                    
                         map = data.loc[(data['Region'] == region) & (data['Council'] == council) & (data['Ward'] == ward) & (data['Ownership'] == ownership)]
                         # st.dataframe(map)
+                                                
+                        # latitude = map.loc[:, 'Latitude'].mean()
+                        # longitude = map.loc[:, 'Longitude'].mean()
+                        Map = folium.Map(location = [latitude, longitude], zoom_start = 6)
+                        Marker = folium.map.FeatureGroup()
+                        Marker.add_child(folium.CircleMarker([latitude, longitude],
+                                                                radius = 7,
+                                                                color = 'red',
+                                                                fill_color = 'red',
+                                                                fill_opacity=0.7))
+                        Map.add_child(Marker)
+                        folium.Marker([latitude, longitude], popup = address, icon=folium.Icon(color = 'red', icon = "home")).add_to(Map)
+                        MousePosition().add_to(Map)
                         
                         for idx, row in map.iterrows():
                                 folium.Marker([row['Latitude'], 
@@ -406,6 +416,7 @@ def app():
                         APIKEY = "316171a92c5d458c85735242213008"
                         #st.write("API KEY: ------------------------------")
                         
+                        # URL = "https://api.openweathermap.org/data/2.5/weather?lat={" + latitude + "}&lon={" + longitude + "}&appid={APIKEY}"
                         URL = BASEURL + "/current.json?key=" + APIKEY + "&q=" + ', ' + region + ', Tanzania' + "&aqi=yes"
                                 
                         # HTTP request
