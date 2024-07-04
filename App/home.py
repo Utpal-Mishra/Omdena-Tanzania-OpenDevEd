@@ -32,6 +32,7 @@ from pandas import json_normalize # tranform JSON file into a pandas dataframe
 import folium # plotting library # Version 1
 from folium.plugins import MousePosition
 from folium.plugins import HeatMap
+from folium.plugins import MarkerCluster 
 
 import pandas as pd # library for data analsysis
 pd.set_option('display.max_columns', None)
@@ -440,11 +441,11 @@ def app():
                         UV = []
                                               
                         
-                        for i in range(100):
+                        for i in range(map.shape[0]):
                                                     
                             # URL = BASEURL + "/current.json?key=" + APIKEY + "&q=" + str(map.Latitude[i]) + str(map.Longitude[i]) + "&aqi=yes"
                             # URL = BASEURL + "/current.json?key=" + APIKEY + "&q=" + map['Ward'][i] + ', ' + map['Council'][i] + ', ' + map['Region'][i] + ', Tanzania' + "&aqi=yes"
-                            URL = BASEURL + "/current.json?key=" + APIKEY + "&q=" + ', ' + data['SchoolName'][i] + data['Ward'][i] + data['Council'][i] + data['Region'][i] + ', Tanzania' + "&aqi=yes"
+                            URL = BASEURL + "/current.json?key=" + APIKEY + "&q=" + ', ' + map['SchoolName'][i] + map['Ward'][i] + map['Council'][i] + map['Region'][i] + ', Tanzania' + "&aqi=yes"
                             response = requests.get(URL) # HTTP request
 
                             dt = response.json()
@@ -568,18 +569,30 @@ def app():
                         status['Longitude'] = pd.to_numeric(status['Longitude'], errors='coerce')
                         status['Temperature'] = pd.to_numeric(status['Temperature'], errors='coerce')
 
+                        st.dataframe(status)
+                        
                         # Drop rows with missing or NaN values
                         status = status.dropna(subset=['Latitude', 'Longitude', 'Temperature'])
 
+                        
                         heat_data = [[status['Latitude'][i], status['Longitude'][i], status['Temperature'][i]] for i in range(len(status))]
                         # st.write(heat_data)
                         
                         # Add heatmap layer to the map
                         HeatMap(heat_data).add_to(Map)
                         # HeatMap(status).add_to(folium.FeatureGroup(name='Heat Map').add_to(Map))
+                        
+                        cluster = MarkerCluster().add_to(Map)
+
+                        for i in range(len(status)):
+                            folium.Marker(
+                                location = [status['Latitude'][i], status['Longitude'][i]],
+                                popup = status['SchoolName'][i],
+                                # icon = folium.Icon(color = "green", icon = "ok-sign"),
+                            ).add_to(cluster)
                     
                         # Map.add_child(hm)
-                        folium_static(Map)
+                        folium_static(Map)      
                         
                         ######################################################################################################
                         
