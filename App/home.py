@@ -31,6 +31,7 @@ from pandas import json_normalize # tranform JSON file into a pandas dataframe
 # !conda install -c conda-forge folium=0.5.0 --yes
 import folium # plotting library # Version 1
 from folium.plugins import MousePosition
+from folium.plugins import HeatMap
 
 import pandas as pd # library for data analsysis
 pd.set_option('display.max_columns', None)
@@ -63,7 +64,7 @@ def app():
     st.title("OMDENA OpenDevEd")
     st.header("AI-Driven Temperature Analysis for Educational Environments in Tanzania")
         
-    tab1, tab2 = st.tabs(["About", "Schools"])
+    tab1, tab2 , tab3= st.tabs(["About", "Locating Schools", "Weather Analysis"])
     
     ###########################################################################################################
     
@@ -240,10 +241,10 @@ def app():
         # st.dataframe(status.head(20))
         
         status.to_csv('status.csv', index = True)
-        """
         
         status = pd.read_csv('status.csv')
         # st.dataframe(status)
+        """
             
         ############################################################################################################
         
@@ -280,6 +281,7 @@ def app():
             """
 
             map = data.loc[(data['Region'] == region)]
+            map = map.reset_index().drop('index', axis = 1)
             # st.dataframe(map)
             
             for idx, row in map.iterrows():
@@ -306,6 +308,7 @@ def app():
                 st.write('Total Schools: {}'.format(len(data[(data['Region'] == region) & (data['Council'] == council)]['SchoolName'].unique())))
                   
                 map = data.loc[(data['Region'] == region) & (data['Council'] == council)]
+                map = map.reset_index().drop('index', axis = 1)
                 # st.dataframe(map)
                 
                 # latitude = map.loc[:, 'Latitude'].mean()
@@ -345,6 +348,7 @@ def app():
                     st.write('Total Schools: {}'.format(len(data[(data['Region'] == region) & (data['Council'] == council) & (data['Ward'] == ward)]['SchoolName'].unique())))
                                 
                     map = data.loc[(data['Region'] == region) & (data['Council'] == council) & (data['Ward'] == ward)]
+                    map = map.reset_index().drop('index', axis = 1)
                     # st.dataframe(map)
                     
                     # latitude = map.loc[:, 'Latitude'].mean()
@@ -372,7 +376,7 @@ def app():
                     ############################################################################################################
                         
                     ownership = st.sidebar.selectbox('Select Ownership', 
-                                                    tuple(sorted(set(list(data.loc[(status['Region'] == region) & (data['Council'] == council) & (data['Ward'] == ward)]['Ownership'])))),
+                                                    tuple(sorted(set(list(data.loc[(data['Region'] == region) & (data['Council'] == council) & (data['Ward'] == ward)]['Ownership'])))),
                                                     index=None,
                                                     placeholder="Select Ownership")
                         
@@ -385,6 +389,7 @@ def app():
                         st.write('Total Schools: {}'.format(len(data[(data['Region'] == region) & (data['Council'] == council) & (data['Ward'] == ward) & (data['Ownership'] == ownership)]['SchoolName'].unique())))
                                    
                         map = data.loc[(data['Region'] == region) & (data['Council'] == council) & (data['Ward'] == ward) & (data['Ownership'] == ownership)]
+                        map = map.reset_index().drop('index', axis = 1)
                         # st.dataframe(map)
                                                 
                         # latitude = map.loc[:, 'Latitude'].mean()
@@ -413,9 +418,80 @@ def app():
                             
                         BASEURL = "http://api.weatherapi.com/v1"
                         #st.write("BASE URL: 'http://api.weatherapi.com/v1")
-                        APIKEY = "316171a92c5d458c85735242213008"
+                        APIKEY = "6bd51cc56e814b49a4b123504240407" # "316171a92c5d458c85735242213008"
                         #st.write("API KEY: ------------------------------")
                         
+                        Region = []
+                        Council = []
+                        Ward = []
+                        SchoolName = []
+                        Latitude = []
+                        Longitude = []
+                        WindSpeed = []
+                        WindDegree = []
+                        WindDirection = []
+                        Gust = []
+                        Pressure = []
+                        Precipitation = []
+                        Temperature = []
+                        Visibility = []
+                        Humidity = []
+                        Cloud = []
+                        UV = []
+                                              
+                        
+                        for i in range(100):
+                                                    
+                            # URL = BASEURL + "/current.json?key=" + APIKEY + "&q=" + str(map.Latitude[i]) + str(map.Longitude[i]) + "&aqi=yes"
+                            # URL = BASEURL + "/current.json?key=" + APIKEY + "&q=" + map['Ward'][i] + ', ' + map['Council'][i] + ', ' + map['Region'][i] + ', Tanzania' + "&aqi=yes"
+                            URL = BASEURL + "/current.json?key=" + APIKEY + "&q=" + ', ' + data['SchoolName'][i] + data['Ward'][i] + data['Council'][i] + data['Region'][i] + ', Tanzania' + "&aqi=yes"
+                            response = requests.get(URL) # HTTP request
+
+                            dt = response.json()
+
+                            SchoolName.append(data['SchoolName'][i])
+                            Ward.append(data['Ward'][i])
+                            Council.append(data['Council'][i])
+                            Region.append(data['Region'][i])
+                            Latitude.append(str(dt['location']['lat']))
+                            Longitude.append(str(dt['location']['lon']))
+                            WindSpeed.append(str(dt['current']["wind_mph"]))
+                            WindDegree.append(str(dt['current']["wind_degree"]))
+                            WindDirection.append(dt['current']["wind_dir"])
+                            Gust.append(str(dt['current']["gust_mph"]))
+                            Pressure.append(str(dt['current']["pressure_mb"]))
+                            Precipitation.append(str(dt['current']["precip_mm"]))
+                            Temperature.append(str(dt['current']["feelslike_c"]))
+                            Visibility.append(str(dt['current']["vis_miles"]))
+                            Humidity.append(str(dt['current']["humidity"]))
+                            Cloud.append(str(dt['current']["cloud"]))
+                            UV.append(str(dt['current']["uv"]))
+
+                        status = pd.DataFrame({'SchoolName': SchoolName,
+                                               'Ward': Ward,
+                                               'Coucil': Council,
+                                               'Region': Region,
+                                               'Latitude': Latitude,
+                                               'Longitude': Longitude,
+                                               'WindSpeed': WindSpeed,
+                                               'WindDegree': WindDegree,
+                                               'WindDirection': WindDirection,
+                                               'Gust': Gust,
+                                               'Pressure': Pressure,
+                                               'Precipitation': Precipitation,
+                                               'Temperature': Temperature,
+                                               'Visibility': Visibility,
+                                               'Humidity': Humidity,
+                                               'Cloud': Cloud,
+                                               'UV': UV})
+
+                        print('Data Shape: ', status.shape)
+                        # st.dataframe(status.head(20))
+                        
+                        # status.to_csv('status.csv', index = True)
+                        # status = pd.read_csv('status.csv')
+                                                     
+                        """
                         # URL = "https://api.openweathermap.org/data/2.5/weather?lat={" + latitude + "}&lon={" + longitude + "}&appid={APIKEY}"
                         URL = BASEURL + "/current.json?key=" + APIKEY + "&q=" + ', ' + region + ', Tanzania' + "&aqi=yes"
                                 
@@ -426,8 +502,7 @@ def app():
                                     
                         # getting data in the json format
                         # data = response.json()
-                                
-                        """ 
+                            
                         st.header(f"Location Demographics for {region}")
                             
                         P1, P2, P3 = st.columns(3)
@@ -438,7 +513,7 @@ def app():
                         P2.metric(label = "Longitude", value = str(response.json()['location']['lon']))
                         P3.metric(label = "Date",      value = response.json()['location']['localtime'].split()[0])
                         P3.metric(label = "Time",      value = response.json()['location']['localtime'].split()[1])
-                        """
+                        
                                 
                         st.write("")
                         st.write("")
@@ -476,4 +551,113 @@ def app():
                         P7.metric(label = "Humidity: ",  value = str(response.json()['current']["humidity"]))
                         P7.metric(label = "Cloud: ",     value = str(response.json()['current']["cloud"]))
                         P7.metric(label = "UV: ",        value = str(response.json()['current']["uv"]))
-                
+                        """
+                        
+                        """
+                        hm = HeatMap(list(zip(status.Latitude.values, status.Longitude.values, status.Temperature.values)),
+                                min_opacity=0.2,
+                                max_val = float(status.Temperature.max()),
+                                radius=17, 
+                                blur=15,
+                                max_zoom=1 
+                            )
+                        """
+                        
+                        # Ensure that latitude, longitude, and temperature are numeric
+                        status['Latitude'] = pd.to_numeric(status['Latitude'], errors='coerce')
+                        status['Longitude'] = pd.to_numeric(status['Longitude'], errors='coerce')
+                        status['Temperature'] = pd.to_numeric(status['Temperature'], errors='coerce')
+
+                        # Drop rows with missing or NaN values
+                        status = status.dropna(subset=['Latitude', 'Longitude', 'Temperature'])
+
+                        heat_data = [[status['Latitude'][i], status['Longitude'][i], status['Temperature'][i]] for i in range(len(status))]
+                        # st.write(heat_data)
+                        
+                        # Add heatmap layer to the map
+                        HeatMap(heat_data).add_to(Map)
+                        # HeatMap(status).add_to(folium.FeatureGroup(name='Heat Map').add_to(Map))
+                    
+                        # Map.add_child(hm)
+                        folium_static(Map)
+                        
+                        ######################################################################################################
+                        
+                        
+                        
+    ############################################################################################################                   
+    
+    with tab3:
+        st.write("Weather Analysis")
+        
+        weather = pd.read_csv('weatherdata.csv')
+        
+        st.dataframe(weather)
+        
+        """
+        BASEURL = "http://api.weatherapi.com/v1"
+        #st.write("BASE URL: 'http://api.weatherapi.com/v1")
+        APIKEY = "316171a92c5d458c85735242213008"
+        #st.write("API KEY: ------------------------------")
+                        
+        # URL = "https://api.openweathermap.org/data/2.5/weather?lat={" + latitude + "}&lon={" + longitude + "}&appid={APIKEY}"
+        URL = BASEURL + "/current.json?key=" + APIKEY + "&q=" + ', ' + region + ', Tanzania' + "&aqi=yes"
+                                
+        # HTTP request
+        response = requests.get(URL)
+        # checking the status code of the request
+        # if response.status_code == 200:
+                                    
+        # getting data in the json format
+        # data = response.json()
+                                 
+        st.header(f"Location Demographics for {region}")
+                 
+                            
+        P1, P2, P3 = st.columns(3)
+        P1.metric(label = "Place",     value = response.json()["location"]['name'])
+        P1.metric(label = "Region",    value = response.json()['location']['region'])
+        P1.metric(label = "Country",   value = response.json()['location']['country'])
+        P2.metric(label = "Latitude",  value = str(response.json()['location']['lat']))
+        P2.metric(label = "Longitude", value = str(response.json()['location']['lon']))
+        P3.metric(label = "Date",      value = response.json()['location']['localtime'].split()[0])
+        P3.metric(label = "Time",      value = response.json()['location']['localtime'].split()[1])
+    
+                                
+        st.write("")
+        st.write("")
+        st.write("")
+        st.header(f"Concentration of Pollutants in {region}")
+                                
+        P1, P2, P3, P4, P5, P6 = st.columns(6)
+        P1.metric(label = "CO",    value = str(round(response.json()['current']["air_quality"]["co"], 2)))
+        P2.metric(label = "NO2",   value = str(round(response.json()['current']["air_quality"]["no2"], 2)))
+        P3.metric(label = "O3",    value = str(round(response.json()['current']["air_quality"]["o3"], 2)))
+        P4.metric(label = "SO2",   value = str(round(response.json()['current']["air_quality"]["so2"], 2)))
+        P5.metric(label = "PM2.5", value = str(round(response.json()['current']["air_quality"]["pm2_5"], 2)))
+        P6.metric(label = "PM10",  value = str(round(response.json()['current']["air_quality"]["pm10"], 2)))
+                               
+        st.write("")
+        st.write("")
+        st.write("")
+        st.header(f"Weather Attributes for {region}")
+                                        
+        P1, P2, P3, P4, P5, P6, P7 = st.columns(7)
+        P1.metric(label = "Wind Speed (mph): ",  value = str(response.json()['current']["wind_mph"]))
+        P1.metric(label = "Wind Degree: ",       value = str(response.json()['current']["wind_degree"]))
+        P1.metric(label = "Wind Direction: ",    value = response.json()['current']["wind_dir"])
+                                
+        P2.metric(label = "Gust (mph): ",  value = str(response.json()['current']["gust_mph"])) 
+                               
+        P3.metric(label = "Pressure (ml): ",  value = str(response.json()['current']["pressure_mb"]))
+                               
+        P4.metric(label = "Precipation (mm): ",    value = str(response.json()['current']["precip_mm"]))      
+                               
+        P5.metric(label = "Temperature (C): ",  value = str(response.json()['current']["feelslike_c"])) 
+                                
+        P6.metric(label = "Visibility (miles): ",  value = str(response.json()['current']["vis_miles"]))
+                                
+        P7.metric(label = "Humidity: ",  value = str(response.json()['current']["humidity"]))
+        P7.metric(label = "Cloud: ",     value = str(response.json()['current']["cloud"]))
+        P7.metric(label = "UV: ",        value = str(response.json()['current']["uv"]))
+        """
