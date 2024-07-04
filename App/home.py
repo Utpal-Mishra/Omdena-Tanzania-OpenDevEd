@@ -31,8 +31,11 @@ from pandas import json_normalize # tranform JSON file into a pandas dataframe
 # !conda install -c conda-forge folium=0.5.0 --yes
 import folium # plotting library # Version 1
 from folium.plugins import MousePosition
-from folium.plugins import HeatMap
-from folium.plugins import MarkerCluster 
+from folium.plugins import HeatMap # https://alcidanalytics.com/p/geographic-heatmap-in-python
+# https://stackoverflow.com/questions/57676583/how-to-specify-the-colors-in-folium-heatmap
+# https://python-bloggers.com/2020/12/how-to-make-stunning-interactive-maps-with-python-and-folium-in-minutes/
+# https://www.kaggle.com/code/daveianhickey/how-to-folium-for-maps-heatmaps-time-data
+from folium.plugins import MarkerCluster # https://python-visualization.github.io/folium/latest/user_guide/plugins/marker_cluster.html
 
 import pandas as pd # library for data analsysis
 pd.set_option('display.max_columns', None)
