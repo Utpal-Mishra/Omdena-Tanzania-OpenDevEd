@@ -165,7 +165,17 @@ def app():
         longitude = location.longitude
         # print('The geograpical coordinate of {} are {}, {}.'.format(location, latitude, longitude)) # location.raw # ZipCode: location.address.split(",")[-2]#
 
-        Map = folium.Map(location = [latitude, longitude], zoom_start = 6)
+        Map = folium.Map(location = [latitude, longitude], zoom_start = 6, tiles="CartoDB positron")
+        
+        # Add ESRI Satellite Tile Layer
+        folium.TileLayer(
+            tiles='https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+            attr='Esri',
+            name='Esri Satellite',
+            overlay=False,
+            control=True
+        ).add_to(Map)
+        
         Marker = folium.map.FeatureGroup()
         Marker.add_child(folium.CircleMarker([latitude, longitude],
                                                 radius = 7,
@@ -175,8 +185,9 @@ def app():
         Map.add_child(Marker)
         folium.Marker([latitude, longitude], popup = address, icon=folium.Icon(color = 'red', icon = 'home')).add_to(Map) # icon=folium.Icon(color='white', icon = "fa-brands fa-bluesky", icon_color='blue') 
         MousePosition().add_to(Map)
+                
         # folium.TileLayer('cartodbdark_matter').add_to(Map)
-        # rfolium_static(Map)
+        # folium_static(Map)
     
         ############################################################################################################
         
@@ -292,7 +303,7 @@ def app():
                     folium.Marker([row['Latitude'], 
                                 row['Longitude']], 
                                 popup = "School Name: " + row['SchoolName'] + ", Ownership Type: " + row['Ownership']).add_to(Map)
-
+                    
             folium_static(Map)
             
             st.divider()
@@ -418,188 +429,6 @@ def app():
                                 
                         st.divider()
                         
-                        ########################################################################################################
-                            
-                        BASEURL = "http://api.weatherapi.com/v1"
-                        #st.write("BASE URL: 'http://api.weatherapi.com/v1")
-                        APIKEY = "6bd51cc56e814b49a4b123504240407" # "316171a92c5d458c85735242213008"
-                        #st.write("API KEY: ------------------------------")
-                        
-                        Region = []
-                        Council = []
-                        Ward = []
-                        SchoolName = []
-                        Latitude = []
-                        Longitude = []
-                        WindSpeed = []
-                        WindDegree = []
-                        WindDirection = []
-                        Gust = []
-                        Pressure = []
-                        Precipitation = []
-                        Temperature = []
-                        Visibility = []
-                        Humidity = []
-                        Cloud = []
-                        UV = []
-                                              
-                        
-                        for i in range(map.shape[0]):
-                                                    
-                            # URL = BASEURL + "/current.json?key=" + APIKEY + "&q=" + str(map.Latitude[i]) + str(map.Longitude[i]) + "&aqi=yes"
-                            # URL = BASEURL + "/current.json?key=" + APIKEY + "&q=" + map['Ward'][i] + ', ' + map['Council'][i] + ', ' + map['Region'][i] + ', Tanzania' + "&aqi=yes"
-                            URL = BASEURL + "/current.json?key=" + APIKEY + "&q=" + ', ' + map['SchoolName'][i] + map['Ward'][i] + map['Council'][i] + map['Region'][i] + ', Tanzania' + "&aqi=yes"
-                            response = requests.get(URL) # HTTP request
-
-                            dt = response.json()
-
-                            SchoolName.append(data['SchoolName'][i])
-                            Ward.append(data['Ward'][i])
-                            Council.append(data['Council'][i])
-                            Region.append(data['Region'][i])
-                            Latitude.append(str(dt['location']['lat']))
-                            Longitude.append(str(dt['location']['lon']))
-                            WindSpeed.append(str(dt['current']["wind_mph"]))
-                            WindDegree.append(str(dt['current']["wind_degree"]))
-                            WindDirection.append(dt['current']["wind_dir"])
-                            Gust.append(str(dt['current']["gust_mph"]))
-                            Pressure.append(str(dt['current']["pressure_mb"]))
-                            Precipitation.append(str(dt['current']["precip_mm"]))
-                            Temperature.append(str(dt['current']["feelslike_c"]))
-                            Visibility.append(str(dt['current']["vis_miles"]))
-                            Humidity.append(str(dt['current']["humidity"]))
-                            Cloud.append(str(dt['current']["cloud"]))
-                            UV.append(str(dt['current']["uv"]))
-
-                        status = pd.DataFrame({'SchoolName': SchoolName,
-                                               'Ward': Ward,
-                                               'Coucil': Council,
-                                               'Region': Region,
-                                               'Latitude': Latitude,
-                                               'Longitude': Longitude,
-                                               'WindSpeed': WindSpeed,
-                                               'WindDegree': WindDegree,
-                                               'WindDirection': WindDirection,
-                                               'Gust': Gust,
-                                               'Pressure': Pressure,
-                                               'Precipitation': Precipitation,
-                                               'Temperature': Temperature,
-                                               'Visibility': Visibility,
-                                               'Humidity': Humidity,
-                                               'Cloud': Cloud,
-                                               'UV': UV})
-
-                        print('Data Shape: ', status.shape)
-                        # st.dataframe(status.head(20))
-                        
-                        # status.to_csv('status.csv', index = True)
-                        # status = pd.read_csv('status.csv')
-                                                     
-                        """
-                        # URL = "https://api.openweathermap.org/data/2.5/weather?lat={" + latitude + "}&lon={" + longitude + "}&appid={APIKEY}"
-                        URL = BASEURL + "/current.json?key=" + APIKEY + "&q=" + ', ' + region + ', Tanzania' + "&aqi=yes"
-                                
-                        # HTTP request
-                        response = requests.get(URL)
-                        # checking the status code of the request
-                        # if response.status_code == 200:
-                                    
-                        # getting data in the json format
-                        # data = response.json()
-                            
-                        st.header(f"Location Demographics for {region}")
-                            
-                        P1, P2, P3 = st.columns(3)
-                        P1.metric(label = "Place",     value = response.json()["location"]['name'])
-                        P1.metric(label = "Region",    value = response.json()['location']['region'])
-                        P1.metric(label = "Country",   value = response.json()['location']['country'])
-                        P2.metric(label = "Latitude",  value = str(response.json()['location']['lat']))
-                        P2.metric(label = "Longitude", value = str(response.json()['location']['lon']))
-                        P3.metric(label = "Date",      value = response.json()['location']['localtime'].split()[0])
-                        P3.metric(label = "Time",      value = response.json()['location']['localtime'].split()[1])
-                        
-                                
-                        st.write("")
-                        st.write("")
-                        st.write("")
-                        st.header(f"Concentration of Pollutants in {region}")
-                                
-                        P1, P2, P3, P4, P5, P6 = st.columns(6)
-                        P1.metric(label = "CO",    value = str(round(response.json()['current']["air_quality"]["co"], 2)))
-                        P2.metric(label = "NO2",   value = str(round(response.json()['current']["air_quality"]["no2"], 2)))
-                        P3.metric(label = "O3",    value = str(round(response.json()['current']["air_quality"]["o3"], 2)))
-                        P4.metric(label = "SO2",   value = str(round(response.json()['current']["air_quality"]["so2"], 2)))
-                        P5.metric(label = "PM2.5", value = str(round(response.json()['current']["air_quality"]["pm2_5"], 2)))
-                        P6.metric(label = "PM10",  value = str(round(response.json()['current']["air_quality"]["pm10"], 2)))
-                                
-                        st.write("")
-                        st.write("")
-                        st.write("")
-                        st.header(f"Weather Attributes for {region}")
-                                        
-                        P1, P2, P3, P4, P5, P6, P7 = st.columns(7)
-                        P1.metric(label = "Wind Speed (mph): ",  value = str(response.json()['current']["wind_mph"]))
-                        P1.metric(label = "Wind Degree: ",       value = str(response.json()['current']["wind_degree"]))
-                        P1.metric(label = "Wind Direction: ",    value = response.json()['current']["wind_dir"])
-                                
-                        P2.metric(label = "Gust (mph): ",  value = str(response.json()['current']["gust_mph"])) 
-                                
-                        P3.metric(label = "Pressure (ml): ",  value = str(response.json()['current']["pressure_mb"]))
-                                
-                        P4.metric(label = "Precipation (mm): ",    value = str(response.json()['current']["precip_mm"]))      
-                                
-                        P5.metric(label = "Temperature (C): ",  value = str(response.json()['current']["feelslike_c"])) 
-                                
-                        P6.metric(label = "Visibility (miles): ",  value = str(response.json()['current']["vis_miles"]))
-                                
-                        P7.metric(label = "Humidity: ",  value = str(response.json()['current']["humidity"]))
-                        P7.metric(label = "Cloud: ",     value = str(response.json()['current']["cloud"]))
-                        P7.metric(label = "UV: ",        value = str(response.json()['current']["uv"]))
-                        """
-                        
-                        """
-                        hm = HeatMap(list(zip(status.Latitude.values, status.Longitude.values, status.Temperature.values)),
-                                min_opacity=0.2,
-                                max_val = float(status.Temperature.max()),
-                                radius=17, 
-                                blur=15,
-                                max_zoom=1 
-                            )
-                        """
-                        
-                        # Ensure that latitude, longitude, and temperature are numeric
-                        status['Latitude'] = pd.to_numeric(status['Latitude'], errors='coerce')
-                        status['Longitude'] = pd.to_numeric(status['Longitude'], errors='coerce')
-                        status['Temperature'] = pd.to_numeric(status['Temperature'], errors='coerce')
-
-                        st.dataframe(status)
-                        
-                        # Drop rows with missing or NaN values
-                        status = status.dropna(subset=['Latitude', 'Longitude', 'Temperature'])
-
-                        
-                        heat_data = [[status['Latitude'][i], status['Longitude'][i], status['Temperature'][i]] for i in range(len(status))]
-                        # st.write(heat_data)
-                        
-                        # Add heatmap layer to the map
-                        HeatMap(heat_data).add_to(Map)
-                        # HeatMap(status).add_to(folium.FeatureGroup(name='Heat Map').add_to(Map))
-                        
-                        cluster = MarkerCluster().add_to(Map)
-
-                        for i in range(len(status)):
-                            folium.Marker(
-                                location = [status['Latitude'][i], status['Longitude'][i]],
-                                popup = status['SchoolName'][i],
-                                # icon = folium.Icon(color = "green", icon = "ok-sign"),
-                            ).add_to(cluster)
-                    
-                        # Map.add_child(hm)
-                        folium_static(Map)      
-                        
-                        ######################################################################################################
-                        
-                        
                         
     ############################################################################################################                   
     
@@ -607,28 +436,98 @@ def app():
         st.write("Weather Analysis")
         
         weather = pd.read_csv('weatherdata.csv')
-        
         st.dataframe(weather)
         
-        """
+        st.divider()
+        
+        ##########################################################################################################
+                                    
         BASEURL = "http://api.weatherapi.com/v1"
-        #st.write("BASE URL: 'http://api.weatherapi.com/v1")
-        APIKEY = "316171a92c5d458c85735242213008"
-        #st.write("API KEY: ------------------------------")
+        # st.write("BASE URL: 'http://api.weatherapi.com/v1")
+        APIKEY = "6bd51cc56e814b49a4b123504240407" # "316171a92c5d458c85735242213008"
+        # st.write("API KEY: ------------------------------")
                         
+        Region = []
+        Council = []
+        Ward = []
+        SchoolName = []
+        Latitude = []
+        Longitude = []
+        WindSpeed = []
+        WindDegree = []
+        WindDirection = []
+        Gust = []
+        Pressure = []
+        Precipitation = []
+        Temperature = []
+        Visibility = []
+        Humidity = []
+        Cloud = []
+        UV = []
+                                              
+                        
+        for i in range(map.shape[0]):
+                                                   
+            # URL = BASEURL + "/current.json?key=" + APIKEY + "&q=" + str(map.Latitude[i]) + str(map.Longitude[i]) + "&aqi=yes"
+            # URL = BASEURL + "/current.json?key=" + APIKEY + "&q=" + map['Ward'][i] + ', ' + map['Council'][i] + ', ' + map['Region'][i] + ', Tanzania' + "&aqi=yes"
+            URL = BASEURL + "/current.json?key=" + APIKEY + "&q=" + ', ' + map['Ward'][i] + map['Council'][i] + map['Region'][i] + ', Tanzania' + "&aqi=yes"
+            response = requests.get(URL) # HTTP request
+
+            dt = response.json()
+
+            Ward.append(map['Ward'][i])
+            Council.append(map['Council'][i])
+            Region.append(map['Region'][i])
+            Latitude.append(str(map['Latitude'][i]))
+            Longitude.append(str(map['Longitude'][i]))
+            WindSpeed.append(str(dt['current']["wind_mph"]))
+            WindDegree.append(str(dt['current']["wind_degree"]))
+            WindDirection.append(dt['current']["wind_dir"])
+            Gust.append(str(dt['current']["gust_mph"]))
+            Pressure.append(str(dt['current']["pressure_mb"]))
+            Precipitation.append(str(dt['current']["precip_mm"]))
+            Temperature.append(str(dt['current']["feelslike_c"]))
+            Visibility.append(str(dt['current']["vis_miles"]))
+            Humidity.append(str(dt['current']["humidity"]))
+            Cloud.append(str(dt['current']["cloud"]))
+            UV.append(str(dt['current']["uv"]))
+
+            status = pd.DataFrame({'Ward': Ward,
+                                   'Council': Council,
+                                   'Region': Region,
+                                   'Latitude': Latitude,
+                                   'Longitude': Longitude,
+                                   'WindSpeed': WindSpeed,
+                                   'WindDegree': WindDegree,
+                                   'WindDirection': WindDirection,
+                                   'Gust': Gust,
+                                   'Pressure': Pressure,
+                                   'Precipitation': Precipitation,
+                                   'Temperature': Temperature,
+                                   'Visibility': Visibility,
+                                   'Humidity': Humidity,
+                                   'Cloud': Cloud,
+                                   'UV': UV})
+
+        # print('Data Shape: ', status.shape)
+        # st.dataframe(status.head(20))
+                       
+        # status.to_csv('status.csv', index = True)
+        # status = pd.read_csv('status.csv')
+                                                     
+        """
         # URL = "https://api.openweathermap.org/data/2.5/weather?lat={" + latitude + "}&lon={" + longitude + "}&appid={APIKEY}"
         URL = BASEURL + "/current.json?key=" + APIKEY + "&q=" + ', ' + region + ', Tanzania' + "&aqi=yes"
-                                
+                               
         # HTTP request
         response = requests.get(URL)
         # checking the status code of the request
         # if response.status_code == 200:
-                                    
+                                   
         # getting data in the json format
         # data = response.json()
-                                 
+                            
         st.header(f"Location Demographics for {region}")
-                 
                             
         P1, P2, P3 = st.columns(3)
         P1.metric(label = "Place",     value = response.json()["location"]['name'])
@@ -638,8 +537,7 @@ def app():
         P2.metric(label = "Longitude", value = str(response.json()['location']['lon']))
         P3.metric(label = "Date",      value = response.json()['location']['localtime'].split()[0])
         P3.metric(label = "Time",      value = response.json()['location']['localtime'].split()[1])
-    
-                                
+                               
         st.write("")
         st.write("")
         st.write("")
@@ -652,7 +550,7 @@ def app():
         P4.metric(label = "SO2",   value = str(round(response.json()['current']["air_quality"]["so2"], 2)))
         P5.metric(label = "PM2.5", value = str(round(response.json()['current']["air_quality"]["pm2_5"], 2)))
         P6.metric(label = "PM10",  value = str(round(response.json()['current']["air_quality"]["pm10"], 2)))
-                               
+                                
         st.write("")
         st.write("")
         st.write("")
@@ -666,14 +564,66 @@ def app():
         P2.metric(label = "Gust (mph): ",  value = str(response.json()['current']["gust_mph"])) 
                                
         P3.metric(label = "Pressure (ml): ",  value = str(response.json()['current']["pressure_mb"]))
-                               
+                                
         P4.metric(label = "Precipation (mm): ",    value = str(response.json()['current']["precip_mm"]))      
-                               
+                                
         P5.metric(label = "Temperature (C): ",  value = str(response.json()['current']["feelslike_c"])) 
-                                
+                              
         P6.metric(label = "Visibility (miles): ",  value = str(response.json()['current']["vis_miles"]))
-                                
+                              
         P7.metric(label = "Humidity: ",  value = str(response.json()['current']["humidity"]))
         P7.metric(label = "Cloud: ",     value = str(response.json()['current']["cloud"]))
         P7.metric(label = "UV: ",        value = str(response.json()['current']["uv"]))
         """
+                        
+        """
+        hm = HeatMap(list(zip(status.Latitude.values, status.Longitude.values, status.Temperature.values)),
+                         min_opacity=0.2,
+                         max_val = float(status.Temperature.max()),
+                         radius=17, 
+                         blur=15,
+                         max_zoom=1 
+                        )
+        """
+                        
+        # Ensure that latitude, longitude, and temperature are numeric
+        status['Latitude'] = pd.to_numeric(status['Latitude'], errors='coerce')
+        status['Longitude'] = pd.to_numeric(status['Longitude'], errors='coerce')
+        status['Temperature'] = pd.to_numeric(status['Temperature'], errors='coerce')
+        # st.dataframe(status)
+                        
+        # Drop rows with missing or NaN values
+        status = status.dropna(subset=['Latitude', 'Longitude', 'Temperature'])
+            
+        heat_data = [[status['Latitude'][i], status['Longitude'][i], status['Temperature'][i]] for i in range(len(status))]
+        # st.write(heat_data)
+        
+        # Add ESRI Satellite Tile Layer
+        folium.TileLayer(
+            tiles='https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+            attr='Esri',
+            name='Esri Satellite',
+            overlay=False,
+            control=True
+        ).add_to(Map)
+                    
+        # Add heatmap layer to the map
+        HeatMap(heat_data).add_to(Map)
+        # HeatMap(status).add_to(folium.FeatureGroup(name='Heat Map').add_to(Map))
+                    
+        cluster = MarkerCluster().add_to(Map)
+
+        for i in range(len(status)):
+            folium.Marker(
+                location = [status['Latitude'][i], status['Longitude'][i]],
+                popup = status['Ward'][i] + status['Council'][i] + status['Region'][i],
+                # icon = folium.Icon(color = "green", icon = "ok-sign"),
+            ).add_to(cluster)       
+                    
+        # ***ADD TEMPERATURE LEGEND***
+        
+        # Map.add_child(hm)
+        folium_static(Map)      
+                       
+        ######################################################################################################
+        
