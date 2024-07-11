@@ -619,6 +619,15 @@ def app():
                 popup = status['Ward'][i] + status['Council'][i] + status['Region'][i],
                 # icon = folium.Icon(color = "green", icon = "ok-sign"),
             ).add_to(cluster)       
+            
+        # Get the latitude and longitude bounds
+        min_lat = status['Latitude'].min()
+        max_lat = status['Latitude'].max()
+        min_lon = status['Longitude'].min()
+        max_lon = status['Longitude'].max()
+
+        # Fit map to bounds
+        Map.fit_bounds([[min_lat, min_lon], [max_lat, max_lon]])
                     
         # ***ADD TEMPERATURE LEGEND***
         
