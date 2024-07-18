@@ -161,6 +161,8 @@ def app():
                                'OWNERSHIP': 'Ownership', 'REGISTRATI': 'Registration', 
                                'TOTAL_POPULATION': 'TotalPopulation'}, inplace = True)
         
+        data = data[['Latitude', 'Longitude', 'Region', 'Council', 'Ward', 'SchoolName', 'Ownership']]
+        
         data['Region'] = data['Region'].apply(lambda x: x.title())
         data['SchoolName'] = data['SchoolName'].apply(lambda x: x.title())
         # st.dataframe(data)
@@ -190,7 +192,7 @@ def app():
             control=True
         ).add_to(Map)
         
-        # Marker = folium.map.FeatureGroup()
+        Marker = folium.map.FeatureGroup()
         # Marker.add_child(folium.CircleMarker([latitude, longitude],
         #                                        radius = 7,
         #                                        color = 'red',
@@ -198,7 +200,7 @@ def app():
         #                                        fill_opacity=0.7))
         # Map.add_child(Marker)
         # folium.Marker([latitude, longitude], popup = address, icon=folium.Icon(color = 'red', icon = 'home')).add_to(Map) # icon=folium.Icon(color='white', icon = "fa-brands fa-bluesky", icon_color='blue') 
-        # MousePosition().add_to(Map)
+        MousePosition().add_to(Map)
         
         # Add-ons -----------------------------------------
         tanzania_border = geopandas.read_file("./tanzania.geojson")
@@ -368,7 +370,7 @@ def app():
                                                         #fill_color = 'red',
                                                         fill_opacity=0.7))
                 Map.add_child(Marker)
-                folium.Marker([latitude, longitude], popup = address, icon=folium.Icon(color = 'red', icon = "home")).add_to(Map)
+                folium.Marker([latitude, longitude], popup = address, icon=folium.Icon(color = 'red', icon = "location-arrow", prefix='fa')).add_to(Map)
                 MousePosition().add_to(Map)
             
                 for idx, row in map.iterrows():
@@ -408,7 +410,7 @@ def app():
                                                             #fill_color = 'red',
                                                             fill_opacity=0.7))
                     Map.add_child(Marker)
-                    folium.Marker([latitude, longitude], popup = address, icon=folium.Icon(color = 'red', icon = "home")).add_to(Map)
+                    folium.Marker([latitude, longitude], popup = address, icon=folium.Icon(color = 'red', icon = "location-arrow", prefix='fa')).add_to(Map)
                     MousePosition().add_to(Map)
                     
                     for idx, row in map.iterrows():
@@ -449,9 +451,9 @@ def app():
                                                                 fill_color = 'red',
                                                                 fill_opacity=0.7))
                         Map.add_child(Marker)
-                        folium.Marker([latitude, longitude], popup = address, icon=folium.Icon(color = 'red', icon = "home")).add_to(Map)
+                        folium.Marker([latitude, longitude], popup = address, icon=folium.Icon(color = 'red', icon = "location-arrow", prefix='fa')).add_to(Map)
                         MousePosition().add_to(Map)
-                        
+                                                
                         for idx, row in map.iterrows():
                                 folium.Marker([row['Latitude'], 
                                             row['Longitude']], 
@@ -463,6 +465,18 @@ def app():
                                 
                         st.divider()
                         
+                        st.sidebar.header('Add Location: ')
+                        name = st.sidebar.text_input("Add School Name")
+                        lat = st.sidebar.slider("Select latitude", data['Latitude'].min(), data['Latitude'].max(), (latitude))
+                        long = st.sidebar.slider("Select longitude", data['Longitude'].min(), data['Longitude'].max(), (longitude))
+
+                        st.sidebar.write("Coordinates: ", lat, long) # name
+                        # st.write(region, council, ward, ownership, lat, long)
+                        
+                        data.loc[len(data.index)] = [lat, long, region, council, ward, name, ownership]
+                        # icon = folium.features.CustomIcon('/content/drive/My Drive/Colab Notebooks/pushpin.png', icon_size=(30,30))
+                        folium.Marker([lat, long], popup = name, icon=folium.Icon(color = 'red', icon = "thumb-tack", prefix='fa')).add_to(Map)
+                        folium_static(Map)
                         
     ############################################################################################################                   
     
