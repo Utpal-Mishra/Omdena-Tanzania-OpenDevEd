@@ -62,13 +62,15 @@ import plotly.figure_factory as ff
 from plotly.subplots import make_subplots
 
 
-st.set_page_config(page_title="OpenDevEd", layout="wide")
+st.set_page_config(page_title="OpenDevEd") # , layout="wide")
 
 print('Libraries Imported')
 
 ###############################################################################################################
 
-st.toast('Welcome to Omdena OpenDevEd!!!', icon='🎉')
+msg = st.toast('**Welcome to Omdena OpenDevEd!!!**', icon='🎉')
+time.sleep(2)
+msg.toast('**Omdena-OpenDevEd Collaboration**', icon='🔥')
 
 ###############################################################################################################
 
@@ -82,13 +84,12 @@ def app():
         st.image("Omdena.png")
 
     with col2:
-        st.image('Tanzania.png', width = 150)
+        st.image('Tanzania.png', width = 130)
 
-
-    st.title("OMDENA OpenDevEd")
+    st.title("Omdena - OpenDevEd")
     st.header("AI-Driven Temperature Analysis for Educational Environments in Tanzania")
         
-    tab1, tab2 , tab3= st.tabs(["About", "Locating Schools", "Weather Analysis"])
+    tab1, tab2 , tab3, tab4 = st.tabs(["About :information_source:", "Locating Schools :school:", "Weather Analysis :cloud:", "Forecasting :chart:"])
     
     # Placeholder for Sidebar Content: sidebar_placeholder = st.sidebar.empty() 
        
@@ -315,8 +316,12 @@ def app():
         
         ############################################################################################################
             
+        # st.sidebar.image("Omdena.png")    
+        
         # Adding a sidebar with select boxes
         st.sidebar.header('Select a Location: ')
+        
+        # Custom CSS to position the text at the bottom right of the sidebar      
         region = st.sidebar.selectbox('Select Region', 
                                     tuple(sorted(set(list(data['Region'])))),
                                     index = None,
@@ -474,32 +479,37 @@ def app():
                         # Add-ons
                                 
                         st.sidebar.divider()
+                            
+                        st.sidebar.header("Couldn't Find a School?")
                         
-                        st.sidebar.header('Add Location: ')
-                        name = st.sidebar.text_input("Add School Name")
-                        lat = st.sidebar.slider("Select latitude", data['Latitude'].min(), data['Latitude'].max(), (latitude))
-                        long = st.sidebar.slider("Select longitude", data['Longitude'].min(), data['Longitude'].max(), (longitude))
+                        # st.sidebar.button("Reset", type="primary")
+                        if st.sidebar.button("Add Location"): 
+                            
+                                name = st.sidebar.text_input("Add School Name")
+                                lat = st.sidebar.slider("Select latitude", data['Latitude'].min(), data['Latitude'].max(), (latitude))
+                                long = st.sidebar.slider("Select longitude", data['Longitude'].min(), data['Longitude'].max(), (longitude))
 
-                        st.sidebar.write("Coordinates: ", lat, long) # name
-                        # st.write(region, council, ward, ownership, lat, long)
-                        
-                        if st.sidebar.toggle("Add School Location"):
-                            
-                            newdata = data
-                            newdata.loc[len(data.index)] = [lat, long, region, council, ward, name, ownership]
-                            st.balloons()
-                            st.toast('New School Location Added!!!', icon='🎉')
-                            
-                            
-                            # data.to_csv('newdata.csv', index = True)
-                            # data = pd.read_csv('newdata.csv')
-                            # st.dataframe(newdata)
-            
-                            # icon = folium.features.CustomIcon('/content/drive/My Drive/Colab Notebooks/pushpin.png', icon_size=(30,30))
-                            folium.Marker([lat, long], popup = name, icon=folium.Icon(color = 'red', icon = "thumb-tack", prefix='fa')).add_to(Map)
-                            folium_static(Map)
-                        
-    ############################################################################################################                   
+                                st.sidebar.write("Coordinates: ", lat, long) # name
+                                # st.write(region, council, ward, ownership, lat, long)
+                                
+                                if st.sidebar.toggle("Integrate School Location"):
+                                    
+                                    newdata = data
+                                    newdata.loc[len(data.index)] = [lat, long, region, council, ward, name, ownership]
+                                    st.balloons()
+                                    st.toast('New School Location Added!!!', icon='🎉')
+                                    
+                                    
+                                    # data.to_csv('newdata.csv', index = True)
+                                    # data = pd.read_csv('newdata.csv')
+                                    # st.dataframe(newdata)
+                    
+                                    # icon = folium.features.CustomIcon('/content/drive/My Drive/Colab Notebooks/pushpin.png', icon_size=(30,30))
+                                    folium.Marker([lat, long], popup = name, icon=folium.Icon(color = 'red', icon = "thumb-tack", prefix='fa')).add_to(Map)
+                                    folium_static(Map)
+                                
+        
+        ############################################################################################################                   
     
     with tab3:
                                         
@@ -996,3 +1006,5 @@ def app():
         
         # ----------------------------------------------------------------------------------------------------------
         
+    with tab4:
+        st.write('Modeling')
