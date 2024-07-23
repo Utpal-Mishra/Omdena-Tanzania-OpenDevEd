@@ -732,10 +732,57 @@ def app():
             
         ############################################################################################################            
                
-        weather = pd.read_csv('weatherdata2023.csv')
-        weather['station_nm'] = weather['station_nm'].apply(lambda x: x.title())  
-        weather['date'] = pd.to_datetime(weather['date'], format='%d-%m-%Y').dt.date
-        # st.dataframe(weather)
+        w23 = pd.read_csv('weather2023.csv')
+        w23['station_nm'] = w23['station_nm'].apply(lambda x: x.title())  
+        w23['date'] = pd.to_datetime(w23['date'], format='%d-%m-%Y').dt.date
+        w23['date'] = pd.to_datetime(w23['date'], errors='coerce')
+        # wd23 = w23[['date', 'temp', 'dwpt', 'rhum', 'prcp', 'wdir', 'wspd', 'pres']]       
+        # wd23 = wd23.groupby('date').mean().reset_index()
+        # nan_row = {col: np.nan for col in wd23.columns}
+        # wd23 = pd.concat([wd23, pd.DataFrame([nan_row])], ignore_index=True)
+        # st.dataframe(w23)
+        
+        w22 = pd.read_csv('weather2022.csv')
+        w22['station_nm'] = w22['station_nm'].apply(lambda x: x.title())  
+        w22['date'] = pd.to_datetime(w22['date'], format='%d-%m-%Y').dt.date
+        w22['date'] = pd.to_datetime(w22['date'], errors='coerce')
+        # wd22 = w22[['date', 'temp', 'dwpt', 'rhum', 'prcp', 'wdir', 'wspd', 'pres']]       
+        # wd22 = wd22.groupby('date').mean().reset_index()
+        # nan_row = {col: np.nan for col in wd22.columns}
+        # wd22 = pd.concat([wd22, pd.DataFrame([nan_row])], ignore_index=True)
+        # st.dataframe(w22)
+        
+        w21 = pd.read_csv('weather2021.csv')
+        w21['station_nm'] = w21['station_nm'].apply(lambda x: x.title())  
+        w21['date'] = pd.to_datetime(w21['date'], format='%d-%m-%Y').dt.date
+        w21['date'] = pd.to_datetime(w21['date'], errors='coerce')
+        # wd21 = w21[['date', 'temp', 'dwpt', 'rhum', 'prcp', 'wdir', 'wspd', 'pres']]       
+        # wd21 = wd21.groupby('date').mean().reset_index()
+        # nan_row = {col: np.nan for col in wd21.columns}
+        # wd21 = pd.concat([wd21, pd.DataFrame([nan_row])], ignore_index=True)
+        # st.dataframe(w21)
+        
+        w20 = pd.read_csv('weather2020.csv')
+        w20['station_nm'] = w20['station_nm'].apply(lambda x: x.title())  
+        w20['date'] = pd.to_datetime(w20['date'], format='%d-%m-%Y').dt.date
+        w20['date'] = pd.to_datetime(w20['date'], errors='coerce')
+        # wd20 = w20[['date', 'temp', 'dwpt', 'rhum', 'prcp', 'wdir', 'wspd', 'pres']]       
+        # wd20 = wd20.groupby('date').mean().reset_index()
+        # nan_row = {col: np.nan for col in wd20.columns}
+        # wd20 = pd.concat([wd20, pd.DataFrame([nan_row])], ignore_index=True)
+        # st.dataframe(w20)
+        
+        w19 = pd.read_csv('weather2019.csv')
+        w19['station_nm'] = w19['station_nm'].apply(lambda x: x.title())  
+        w19['date'] = pd.to_datetime(w19['date'], format='%d-%m-%Y').dt.date
+        w19['date'] = pd.to_datetime(w19['date'], errors='coerce')
+        # wd19 = w19[['date', 'temp', 'dwpt', 'rhum', 'prcp', 'wdir', 'wspd', 'pres']]       
+        # wd19 = wd19.groupby('date').mean().reset_index()
+        # nan_row = {col: np.nan for col in wd19.columns}
+        # wd19 = pd.concat([wd19, pd.DataFrame([nan_row])], ignore_index=True)
+        
+        w = [w19, w20, w21, w22, w23]
+        weatherdata = pd.concat(w, ignore_index=True)
         
         """
         fig = px.bar(weather, x = Qualification.qualification, y = Qualification.income, color = Qualification.income,  barmode='group')
@@ -744,8 +791,8 @@ def app():
         fig.update_layout(height=600, width=800, xaxis_title="Qualifications", yaxis_title="Income", title_text="Income w.r.t Qualifications of Customers") 
         fig.show()
         """
-        weather['date'] = pd.to_datetime(weather['date'], errors='coerce')
-        visuals = weather[['date', 'temp', 'dwpt', 'rhum', 'prcp', 'wdir', 'wspd', 'pres']]       
+        
+        visuals = weatherdata[['date', 'temp', 'dwpt', 'rhum', 'prcp', 'wdir', 'wspd', 'pres']]       
         visuals = visuals.groupby('date').mean().reset_index()
         
         """
@@ -767,13 +814,15 @@ def app():
         # Replacing month numbers with month names
         visuals['month'] = visuals['month'].replace(month_map)
         """
+        
         visuals['month'] = visuals['date'].dt.month 
         # # visuals['month'] = visuals['date'].apply(lambda x: int(x.split('-')[1].split('-')[0]))
         visuals['month_nm'] = visuals['date'].dt.strftime('%b')
         visuals['year'] = visuals['date'].dt.year
-        # st.dataframe(visuals)    
+        # st.dataframe(visuals)  
+        # st.write(visuals['year'].unique())  
         
-        variables = ['date', 'month', 'temp', 'dwpt', 'rhum', 'prcp', 'wdir', 'wspd', 'pres']
+        # variables = ['date', 'month', 'temp', 'dwpt', 'rhum', 'prcp', 'wdir', 'wspd', 'pres']
         
         ############################################################################################################
         
@@ -793,22 +842,38 @@ def app():
 
         # Create Streamlit selectbox for filtering
         filter_option = st.selectbox('Select Time Frame', ['Year-wise', '6-Month-wise', 'Season-wise'])
-
+        
+        # Function to insert NaN values at year boundaries
+        def boundaries(data):
+            years = data['year'].unique()
+            new_data = pd.DataFrame(columns = data.columns)
+            for year in years:
+                year_data = data[data['year'] == year]
+                new_data = pd.concat([new_data, year_data, pd.DataFrame({col: [None] for col in data.columns})], ignore_index=True)
+            return new_data
+        
         # Filter data based on the selected option
         if filter_option == 'Year-wise':
             # Year-wise filter
             year = st.selectbox('Select Year', sorted(visuals['year'].unique()))
             filtered_data = visuals[visuals['year'] == year]
+            
         elif filter_option == '6-Month-wise':
             # 6-Month-wise filter
             months = [(1, 6), (7, 12)]
             selected_months = st.selectbox('Select 6-Month Period', ['Jan-Jun', 'Jul-Dec'])
             start_month, end_month = months[0] if selected_months == 'Jan-Jun' else months[1]
             filtered_data = visuals[(visuals['month'] >= start_month) & (visuals['month'] <= end_month)]
+            filtered_data = boundaries(filtered_data)
+            
         elif filter_option == 'Season-wise':
             # Season-wise filter
             season = st.selectbox('Select Season', ['Winter', 'Spring', 'Summer', 'Fall'])
             filtered_data = visuals[visuals['season'] == season]
+            filtered_data = boundaries(filtered_data)
+            
+        # Plotting the data to visualize the break at year boundaries
+        # st.line_chart(filtered_data[['month', 'value']].set_index('month'))
             
         # PLOT: Temperature and Precipitation Over Time
         
@@ -881,8 +946,8 @@ def app():
         # Update layout
         fig.update_layout(height=700, width=1500, title_text='Temperature and Precipitation Over Time', xaxis_title='Date')
         fig.update_xaxes(rangeslider_visible = True, showline = True, linewidth = 2, linecolor = 'black', mirror = True)
-        fig.update_yaxes(showline = True, title_text='Temperature (°C)', secondary_y=False)
-        fig.update_yaxes(title_text='Precipitation (mm)', secondary_y=True)
+        fig.update_yaxes(showline = True, title_text='Temperature (°C)', linewidth = 2, linecolor = 'black', secondary_y=False)
+        fig.update_yaxes(title_text='Precipitation (mm)', linewidth = 2, linecolor = 'black', secondary_y=True)
         st.plotly_chart(fig)
        
         st.divider()
@@ -978,8 +1043,8 @@ def app():
         # Update layout
         fig.update_layout(height=700, width=1500, title_text='Temperature and Humidity Over Time: To understand the Heat Index and Comfort Levels', xaxis_title='Date')
         fig.update_xaxes(rangeslider_visible = True, showline = True, linewidth = 2, linecolor = 'black', mirror = True)
-        fig.update_yaxes(showline = True, title_text='Temperature (°C)', secondary_y=False)
-        fig.update_yaxes(title_text='Humidity', secondary_y=True)
+        fig.update_yaxes(showline = True, title_text='Temperature (°C)', linewidth = 2, linecolor = 'black', secondary_y=False)
+        fig.update_yaxes(title_text='Humidity', linewidth = 2, linecolor = 'black', secondary_y=True)
         st.plotly_chart(fig)
        
         st.divider()
@@ -998,8 +1063,8 @@ def app():
         # Update layout
         fig.update_layout(height=700, width=1500, title_text='Wind Speed and Wind Direction Over Time: To understand Weather Patterns and Storm Tracking', xaxis_title='Date')
         fig.update_xaxes(rangeslider_visible = True, showline = True, linewidth = 2, linecolor = 'black', mirror = True)
-        fig.update_yaxes(showline = True, title_text='Wind Speed (km/h)', secondary_y=False)
-        fig.update_yaxes(title_text='Wind Direction (°)', secondary_y=True)
+        fig.update_yaxes(showline = True, title_text='Wind Speed (km/h)', linewidth = 2, linecolor = 'black', secondary_y=False)
+        fig.update_yaxes(title_text='Wind Direction (°)', linewidth = 2, linecolor = 'black', secondary_y=True)
         st.plotly_chart(fig)
        
         st.divider()
