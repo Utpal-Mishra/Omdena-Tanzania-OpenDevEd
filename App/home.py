@@ -1218,6 +1218,7 @@ def app():
                     st.write('')
                     
                     col1, col2, col3, col4, col5 = st.columns(5)
+                    uv = {1: 'Low', 2: 'Low', 3: 'Moderate', 4: 'Moderate', 5: 'Moderate', 6: 'High', 7: 'High', 8: 'Very High', 9: 'Very High', 10: 'Very High', '11': 'Extreme'}
                     col1.metric(label = "UV Index",      value = uv[dt['current']["uv"]], delta = 0)
                     col2.metric(label = "Humidity",      value = dt['current']["humidity"], delta = 0)
                     col3.metric(label = "Precipitation", value = dt['current']["precip_mm"], delta = 0)
