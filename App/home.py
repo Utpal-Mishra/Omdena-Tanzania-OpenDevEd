@@ -52,6 +52,7 @@ pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
 
 import time
+from datetime import datetime
 
 # import geopandas as gpd
 import folium
@@ -64,6 +65,9 @@ from plotly.subplots import make_subplots
 from sklearn.model_selection import GridSearchCV, train_test_split
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_absolute_error
+
+# Weather Icons
+# https://www.iconfinder.com/
         
 st.set_page_config(page_title="OpenDevEd") # , layout="wide")
 
@@ -1204,8 +1208,53 @@ def app():
                     
                     st.write('')
                     
+                    datetime_str = dt['location']['localtime']
+                    day = datetime.strptime(datetime_str, "%Y-%m-%d %H:%M").strftime("%A")
+                    clock = datetime.strptime(datetime_str, "%Y-%m-%d %H:%M").strftime("%H:%M")
                     st.write(str(dt['forecast']['forecastday'][i]['day']['maxtemp_c']) + '/ ' + str(dt['forecast']['forecastday'][i]['day']['mintemp_c']) + ' Feels Like ' + str(dt['current']['feelslike_c']))
-                    st.write(dt['location']['localtime']) # print(dt['current']['last_updated'])
+                    st.write(day + str('/ ') + clock) # print(dt['current']['last_updated'])
+                    
+                    st.write('')
+                    
+                    time = []
+                    temp = []
+                    prcp = []
+                    for k in range(len(dt['forecast']['forecastday'][i]['hour'])):
+                        
+                        time.append(datetime.strptime(dt['forecast']['forecastday'][i]['hour'][k]['time'], "%Y-%m-%d %H:%M"))
+                        temp.append(dt['forecast']['forecastday'][i]['hour'][k]['temp_c']) # dt['forecast']['forecastday'][i]['hour'][k]['feelslike_c']
+                        prcp.append(dt['forecast']['forecastday'][i]['hour'][k]["precip_in"])
+                        
+                        """
+                        print(dt['forecast']['forecastday'][i]['hour'][k]['condition']['text'])
+                        print(dt['forecast']['forecastday'][i]['hour'][k]["wind_mph"])
+                        print(dt['forecast']['forecastday'][i]['hour'][k]["wind_degree"])
+                        print(dt['forecast']['forecastday'][i]['hour'][k]["wind_dir"])
+                        print(dt['forecast']['forecastday'][i]['hour'][k]['windchill_c'])
+                        print(dt['forecast']['forecastday'][i]['hour'][k]["pressure_in"])
+                        print(dt['forecast']['forecastday'][i]['hour'][k]["humidity"])
+                        print(dt['forecast']['forecastday'][i]['hour'][k]["cloud"])
+                        print(dt['forecast']['forecastday'][i]['hour'][k]['heatindex_c'])
+                        print(dt['forecast']['forecastday'][i]['hour'][k]['dewpoint_c'])
+                        print(dt['forecast']['forecastday'][i]['hour'][k]["vis_miles"])
+                        print(dt['forecast']['forecastday'][i]['hour'][k]["uv"])
+                        print(dt['forecast']['forecastday'][i]['hour'][k]["gust_mph"])
+                        """
+                    X = pd.DataFrame({'time': time, 'temp': temp, 'prcp': prcp})
+                    
+                    # Create subplots with secondary y-axis
+                    fig = make_subplots(specs=[[{"secondary_y": True}]])
+                    fig.add_trace(go.Scatter(x = X['time'], y = X['temp'], name = 'Temperature', mode ='lines+markers', line=dict(color = 'firebrick')), secondary_y = False) #, text=[f"Humidity: {h}" for h in X['humidity']], hoverinfo='text+x+y')
+                    fig.add_trace(go.Bar(x = X['time'], y = X['prcp'], name = 'Precipitation', marker = dict(color = 'royalblue')), secondary_y = True)
+
+                    # Update layout
+                    fig.update_layout(height=500, width=1500, title_text='Temperature and Precipitation Over Time', xaxis_title='Date')
+                    fig.update_xaxes(rangeslider_visible = False, showline = True, linewidth = 2, linecolor = 'black', mirror = True)
+                    fig.update_yaxes(showline = True, title_text='Temperature (°C)', linewidth = 2, linecolor = 'black', secondary_y=False)
+                    fig.update_yaxes(title_text='Precipitation (mm)', linewidth = 2, linecolor = 'black', secondary_y=True)
+                    
+                    fig.add_trace(go.Scatter(x = [datetime.strptime(dt['location']['localtime'], "%Y-%m-%d %H:%M")], y = [dt['current']['temp_c']], name='Specific Point',mode='markers',marker=dict(color='blue', size=10)))
+                    st.plotly_chart(fig)
                     
                     st.write('')
                     
@@ -1219,11 +1268,16 @@ def app():
                     
                     col1, col2, col3, col4, col5 = st.columns(5)
                     uv = {1: 'Low', 2: 'Low', 3: 'Moderate', 4: 'Moderate', 5: 'Moderate', 6: 'High', 7: 'High', 8: 'Very High', 9: 'Very High', 10: 'Very High', '11': 'Extreme'}
-                    col1.metric(label = "UV Index",      value = uv[dt['current']["uv"]], delta = 0)
-                    col2.metric(label = "Humidity",      value = dt['current']["humidity"], delta = 0)
-                    col3.metric(label = "Precipitation", value = dt['current']["precip_mm"], delta = 0)
-                    col4.metric(label = "Pressure",      value = dt['current']["pressure_mb"], delta = 0)
-                    col5.metric(label = "Wind",          value = dt['current']["wind_mph"], delta = 0)
+                    col1.metric(label = "UV Index",      value = uv[dt['current']["uv"]])
+                    col1.image('UVIcon.png', width = 50)
+                    col2.metric(label = "Humidity",      value = str(dt['current']["humidity"]) + ' %')
+                    col2.image('HumidityIcon.png', width = 50)
+                    col3.metric(label = "Precipitation", value = str(dt['current']["precip_in"]) + ' in')
+                    col3.image('PrecipitationIcon.png', width = 50)
+                    col4.metric(label = "Pressure",      value = str(round(dt['current']["pressure_in"])) + ' inHg')
+                    col4.image('PressureIcon.png', width = 50)
+                    col5.metric(label = "Wind",          value = str(dt['current']["wind_mph"]) + ' mph')
+                    col5.image('WindIcon.png', width = 50)
                     # print(dt['current']["wind_degree"])
                     # print(dt['current']["wind_dir"])
                     # print(dt['current']['windchill_c'])
@@ -1237,48 +1291,29 @@ def app():
                     # print('Forecasting For Next {} Days: ', format(len(dt['forecast']['forecastday'])))
                     # Earlier: Forecasting Loop: Present Day - Next 7 Days - D = 0-7
                     
-                    print(dt['forecast']['forecastday'][i]['day']['maxwind_mph'])
-                    print(dt['forecast']['forecastday'][i]['day']['totalprecip_mm'])
+                    # print(dt['forecast']['forecastday'][i]['day']['maxwind_mph'])
+                    # print(dt['forecast']['forecastday'][i]['day']['totalprecip_mm'])
                     # print(dt['forecast']['forecastday'][i]['day']['totalsnow_cm'])
-                    print(dt['forecast']['forecastday'][i]['day']['avgvis_miles'])
-                    print(dt['forecast']['forecastday'][i]['day']['avghumidity'])
-                    print(dt['forecast']['forecastday'][i]['day']['daily_chance_of_rain'])
-                    print(dt['forecast']['forecastday'][i]['day']['daily_chance_of_snow'])
-                    print(dt['forecast']['forecastday'][i]['day']['condition']['text'])
-                    print(dt['forecast']['forecastday'][i]['day']['uv'])
+                    # print(dt['forecast']['forecastday'][i]['day']['avgvis_miles'])
+                    # print(dt['forecast']['forecastday'][i]['day']['avghumidity'])
+                    # print(dt['forecast']['forecastday'][i]['day']['daily_chance_of_rain'])
+                    # print(dt['forecast']['forecastday'][i]['day']['daily_chance_of_snow'])
+                    # print(dt['forecast']['forecastday'][i]['day']['condition']['text'])
+                    # print(dt['forecast']['forecastday'][i]['day']['uv'])
                     
                     # print(dt['forecast']['forecastday'][i]['astro']['sunrise'])
                     # print(dt['forecast']['forecastday'][i]['astro']['sunset'])
-                    print(dt['forecast']['forecastday'][i]['astro']['moonrise'])
-                    print(dt['forecast']['forecastday'][i]['astro']['moonset'])
-                    print(dt['forecast']['forecastday'][i]['astro']['moon_phase'])
-                    print(dt['forecast']['forecastday'][i]['astro']['moon_illumination'])
-                    print(dt['forecast']['forecastday'][i]['astro']['is_moon_up'])
-                    print(dt['forecast']['forecastday'][i]['astro']['is_sun_up'])
+                    # print(dt['forecast']['forecastday'][i]['astro']['moonrise'])
+                    # print(dt['forecast']['forecastday'][i]['astro']['moonset'])
+                    # print(dt['forecast']['forecastday'][i]['astro']['moon_phase'])
+                    # print(dt['forecast']['forecastday'][i]['astro']['moon_illumination'])
+                    # print(dt['forecast']['forecastday'][i]['astro']['is_moon_up'])
+                    # print(dt['forecast']['forecastday'][i]['astro']['is_sun_up'])
                   
                     # Hour: 0 - 23
                     print('{} Hours Data', format(len(dt['forecast']['forecastday'][0]['hour'])))
                     
-                    for k in range(len(dt['forecast']['forecastday'][i]['hour'])):
-                        
-                        print('Hour: {}'.format(k))
-                        
-                        print(dt['forecast']['forecastday'][i]['hour'][k]['temp_c'])
-                        print(dt['forecast']['forecastday'][i]['hour'][k]['feelslike_c'])
-                        print(dt['forecast']['forecastday'][i]['hour'][k]['condition']['text'])
-                        print(dt['forecast']['forecastday'][i]['hour'][k]["wind_mph"])
-                        print(dt['forecast']['forecastday'][i]['hour'][k]["wind_degree"])
-                        print(dt['forecast']['forecastday'][i]['hour'][k]["wind_dir"])
-                        print(dt['forecast']['forecastday'][i]['hour'][k]['windchill_c'])
-                        print(dt['forecast']['forecastday'][i]['hour'][k]["pressure_mb"])
-                        print(dt['forecast']['forecastday'][i]['hour'][k]["precip_mm"])
-                        print(dt['forecast']['forecastday'][i]['hour'][k]["humidity"])
-                        print(dt['forecast']['forecastday'][i]['hour'][k]["cloud"])
-                        print(dt['forecast']['forecastday'][i]['hour'][k]['heatindex_c'])
-                        print(dt['forecast']['forecastday'][i]['hour'][k]['dewpoint_c'])
-                        print(dt['forecast']['forecastday'][i]['hour'][k]["vis_miles"])
-                        print(dt['forecast']['forecastday'][i]['hour'][k]["uv"])
-                        print(dt['forecast']['forecastday'][i]['hour'][k]["gust_mph"])
+                    
                         
                     print('\n\n')
                             
@@ -1291,54 +1326,4 @@ def app():
                     col6.metric(label = "PM10",  value = str(round(response.json()['current']["air_quality"]["pm10"], 2)))
             
                     print(dt['alerts']["alert"])
-                    
                 
-        """                            
-        st.header(f"Location Demographics for {region}")
-                                    
-        P1, P2, P3 = st.columns(3)
-        P1.metric(label = "Place",     value = response.json()["location"]['name'])
-        P1.metric(label = "Region",    value = response.json()['location']['region'])
-        P1.metric(label = "Country",   value = response.json()['location']['country'])
-        P2.metric(label = "Latitude",  value = str(response.json()['location']['lat']))
-        P2.metric(label = "Longitude", value = str(response.json()['location']['lon']))
-        P3.metric(label = "Date",      value = response.json()['location']['localtime'].split()[0])
-        P3.metric(label = "Time",      value = response.json()['location']['localtime'].split()[1])
-                                  
-        st.write("")
-        st.write("")
-        st.write("")
-        st.header(f"Concentration of Pollutants in {region}")
-                                       
-        P1, P2, P3, P4, P5, P6 = st.columns(6)
-        P1.metric(label = "CO",    value = str(round(response.json()['current']["air_quality"]["co"], 2)))
-        P2.metric(label = "NO2",   value = str(round(response.json()['current']["air_quality"]["no2"], 2)))
-        P3.metric(label = "O3",    value = str(round(response.json()['current']["air_quality"]["o3"], 2)))
-        P4.metric(label = "SO2",   value = str(round(response.json()['current']["air_quality"]["so2"], 2)))
-        P5.metric(label = "PM2.5", value = str(round(response.json()['current']["air_quality"]["pm2_5"], 2)))
-        P6.metric(label = "PM10",  value = str(round(response.json()['current']["air_quality"]["pm10"], 2)))
-                                       
-        st.write("")
-        st.write("")
-        st.write("")
-        st.header(f"Weather Attributes for {region}")
-                                                
-        P1, P2, P3, P4, P5, P6, P7 = st.columns(7)
-        P1.metric(label = "Wind Speed (mph): ",  value = str(response.json()['current']["wind_mph"]))
-        P1.metric(label = "Wind Degree: ",       value = str(response.json()['current']["wind_degree"]))
-        P1.metric(label = "Wind Direction: ",    value = response.json()['current']["wind_dir"])
-                                        
-        P2.metric(label = "Gust (mph): ",  value = str(response.json()['current']["gust_mph"])) 
-                                    
-        P3.metric(label = "Pressure (ml): ",  value = str(response.json()['current']["pressure_mb"]))
-                                        
-        P4.metric(label = "Precipation (mm): ",    value = str(response.json()['current']["precip_mm"]))      
-                                        
-        P5.metric(label = "Temperature (C): ",  value = str(response.json()['current']["feelslike_c"])) 
-                                    
-        P6.metric(label = "Visibility (miles): ",  value = str(response.json()['current']["vis_miles"]))
-                                    
-        P7.metric(label = "Humidity: ",  value = str(response.json()['current']["humidity"]))
-        P7.metric(label = "Cloud: ",     value = str(response.json()['current']["cloud"]))
-        P7.metric(label = "UV: ",        value = str(response.json()['current']["uv"]))     
-        """
