@@ -62,14 +62,16 @@ import plotly.graph_objects as go
 import plotly.figure_factory as ff
 from plotly.subplots import make_subplots
 
-from sklearn.model_selection import GridSearchCV, train_test_split
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.metrics import mean_absolute_error
+import base64
+from win10toast import ToastNotifier
+import pyautogui as pg
+import pywhatkit as kit
+import keyboard as kb
 
 # Weather Icons
 # https://www.iconfinder.com/
         
-st.set_page_config(page_title="OpenDevEd") # , layout="wide")
+st.set_page_config(page_title="OpenDevEd", layout="wide")
 
 print('Libraries Imported')
 
@@ -80,10 +82,10 @@ time.sleep(2)
 msg.toast('**Omdena-OpenDevEd Collaboration**', icon='🔥')
 
 ###############################################################################################################
-
+   
 # @st.cache_data(experimental_allow_widgets=True)
 def app():
-    
+        
     st.write("")
     col1, col2 = st.columns(2)
 
@@ -96,7 +98,7 @@ def app():
     st.title("Omdena - OpenDevEd")
     st.header("AI-Driven Temperature Analysis for Educational Environments in Tanzania")
         
-    tab1, tab2 , tab3, tab4 = st.tabs(["About :information_source:", "Locating Schools :school:", "Weather Analysis :cloud:", "Forecasting :chart:"])
+    tab1, tab2 , tab3, tab4, tab5 = st.tabs(["About :information_source:", "Locating Schools :school:", "Weather Analysis :cloud:", "Forecasting :chart:", "Contact :phone:"])
     
     # Placeholder for Sidebar Content: sidebar_placeholder = st.sidebar.empty() 
        
@@ -185,10 +187,10 @@ def app():
         # data = pd.read_csv('data.csv')
         # st.dataframe(data)
         
-        st.map(data.rename(columns = {'Latitude': 'latitude', 'Longitude': 'longitude'}), zoom = 5)
+        st.map(data.rename(columns = {'Latitude': 'latitude', 'Longitude': 'longitude'}), size = 50, zoom = 5)
        
     ############################################################################################################
-    
+    """
     with tab2: 
               
         address = 'Tanzania'
@@ -199,7 +201,7 @@ def app():
         longitude = location.longitude
         # print('The geograpical coordinate of {} are {}, {}.'.format(location, latitude, longitude)) # location.raw # ZipCode: location.address.split(",")[-2]#
 
-        Map = folium.Map(location = [latitude, longitude], zoom_start = 6, tiles="CartoDB positron")
+        Map = folium.Map(location = [latitude, longitude], zoom_start = 6)
         
         # Add ESRI Satellite Tile Layer
         folium.TileLayer(
@@ -219,7 +221,51 @@ def app():
         # Map.add_child(Marker)
         # folium.Marker([latitude, longitude], popup = address, icon=folium.Icon(color = 'red', icon = 'home')).add_to(Map) # icon=folium.Icon(color='white', icon = "fa-brands fa-bluesky", icon_color='blue') 
         MousePosition().add_to(Map)
+        """
         
+    # Create a list of tile layers
+    tile_layers = {
+        'Open Street Map': 'openstreetmap',
+        'Stamen Terrain': 'Stamen Terrain',
+        'Stamen Toner': 'Stamen Toner',
+        'Stamen Watercolor': 'Stamen Watercolor',
+        'CartoDB Positron': 'CartoDB positron',
+        'CartoDB Dark Matter': 'CartoDB dark_matter',
+        'Esri Satellite': 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
+    }
+
+    # Sidebar for tile layer selection
+    selected_tile = st.sidebar.selectbox('Select Tile Layer', list(tile_layers.keys())) #, index=None, placeholder="Select Map Tile")
+
+    # Main content area
+    with tab2:
+        
+        address = 'Tanzania'
+        geolocator = Nominatim(user_agent="four_square")
+        location = geolocator.geocode(address)
+        latitude = location.latitude
+        longitude = location.longitude
+
+        # Create a folium map
+        Map = folium.Map(location=[latitude, longitude], zoom_start=6)
+
+        # Add the selected tile layer
+        if selected_tile == 'Esri Satellite':
+            folium.TileLayer(
+                tiles=tile_layers[selected_tile],
+                attr='Esri',
+                name='Esri Satellite',
+                overlay=False,
+                control=True
+            ).add_to(Map)
+        else:
+            folium.TileLayer(tile_layers[selected_tile]).add_to(Map)
+        
+        # Optionally add other markers or layers
+        Marker = folium.map.FeatureGroup()
+        MousePosition().add_to(Map)
+        Map.add_child(folium.LatLngPopup())
+    
         # Add-ons -----------------------------------------
         tanzania_border = geopandas.read_file("./tanzania.geojson")
         folium.GeoJson(tanzania_border,
@@ -328,6 +374,49 @@ def app():
         # Adding a sidebar with select boxes
         st.sidebar.header('Select a Location: ')
         
+        # tile = ""
+        # col1, col2, col3 = st.sidebar.columns(3)
+        # with col1:
+        #     st.image('SunriseIcon.png', width = 50)
+        #     if st.button("Street"):
+        #         type = "OpenStreetMap"
+        # with col2:
+        #     st.image('SunriseIcon.png', width = 50)
+        #     if st.button("CartoDV"):
+        #         type = "Cartodb Positron"
+        # with col3:
+        #     st.image('SunriseIcon.png', width = 50)
+        #     if st.button("Dark"):
+        #         type = "Cartodb dark_matter"
+              
+        # st.markdown(
+        #         """
+        #         <style>
+        #         button {
+        #             background: none!important;
+        #             border: none;
+        #             padding: 0!important;
+        #             color: white !important;
+        #             text-decoration: none;
+        #             cursor: pointer;
+        #             border: none !important;
+        #         }
+        #         button:hover {
+        #             text-decoration: none;
+        #             color: white !important;
+        #         }
+        #         button:focus {
+        #             outline: none !important;
+        #             box-shadow: none !important;
+        #             color: white !important;
+        #         }
+        #         </style>
+        #         """,
+        #         unsafe_allow_html=True,
+        #     )
+           
+        schoolMarkers = []   
+        map = None
         # Custom CSS to position the text at the bottom right of the sidebar      
         region = st.sidebar.selectbox('Select Region', 
                                     tuple(sorted(set(list(data['Region'])))),
@@ -335,6 +424,9 @@ def app():
                                     placeholder = "Select Region",
                                     key = 's1')
 
+        showPredict = False
+        st.session_state.predictions = [0]*7
+        
         if region:
             
             st.divider()
@@ -360,7 +452,7 @@ def app():
                                 row['Longitude']], 
                                 popup = "School Name: " + row['SchoolName'] + ", Ownership Type: " + row['Ownership']).add_to(Map)
                     
-            folium_static(Map)
+            folium_static(Map, width = 1200, height = 500)
             
             st.divider()
             
@@ -400,7 +492,7 @@ def app():
                                     row['Longitude']], 
                                     popup = "School Name: " + row['SchoolName']).add_to(Map)
 
-                folium_static(Map)
+                folium_static(Map, width = 1200, height = 500)
                         
                 st.divider()
                 
@@ -440,7 +532,7 @@ def app():
                                         row['Longitude']], 
                                         popup = "School Name: " + row['SchoolName']).add_to(Map)
 
-                    folium_static(Map)
+                    folium_static(Map, width = 1200, height = 500)
                             
                     st.divider()
                 
@@ -481,10 +573,9 @@ def app():
                                             row['Longitude']], 
                                             popup = "School Name: " + row['SchoolName']).add_to(Map)
 
-                        folium_static(Map)
+                        folium_static(Map, width = 1200, height = 500)
                         
                         # Add-ons
-                                
                         st.sidebar.divider()
                             
                         st.sidebar.header("Couldn't Find a School?")
@@ -513,8 +604,8 @@ def app():
                     
                                     # icon = folium.features.CustomIcon('/content/drive/My Drive/Colab Notebooks/pushpin.png', icon_size=(30,30))
                                     folium.Marker([lat, long], popup = name, icon=folium.Icon(color = 'red', icon = "thumb-tack", prefix='fa')).add_to(Map)
-                                    folium_static(Map)
-                                
+                                    folium_static(Map, width = 1200, height = 500)
+                                    
         
         ############################################################################################################                   
     
@@ -729,7 +820,7 @@ def app():
             # ***ADD TEMPERATURE LEGEND***
                 
             # Map.add_child(hm)
-            folium_static(Map)   
+            folium_static(Map, width = 1200, height = 500)   
             
             st.divider()    
             
@@ -1349,7 +1440,7 @@ def app():
                     
                 st.write('')
                    
-                time = []
+                tm = []
                 temp = []
                 prcp = []
                     
@@ -1358,7 +1449,7 @@ def app():
 
                     for k in range(len(dt['forecast']['forecastday'][i]['hour'])):
                         
-                        time.append(datetime.strptime(dt['forecast']['forecastday'][i]['hour'][k]['time'], "%Y-%m-%d %H:%M"))
+                        tm.append(datetime.strptime(dt['forecast']['forecastday'][i]['hour'][k]['time'], "%Y-%m-%d %H:%M"))
                         temp.append(dt['forecast']['forecastday'][i]['hour'][k]['temp_c']) # dt['forecast']['forecastday'][i]['hour'][k]['feelslike_c']
                         prcp.append(dt['forecast']['forecastday'][i]['hour'][k]["precip_in"])
                         
@@ -1378,7 +1469,7 @@ def app():
                         print(dt['forecast']['forecastday'][i]['hour'][k]["gust_mph"])
                         """
                 
-                X = pd.DataFrame({'time': time, 'temp': temp, 'prcp': prcp})
+                X = pd.DataFrame({'time': tm, 'temp': temp, 'prcp': prcp})
                     
                 # Create subplots with secondary y-axis
                 fig = make_subplots(specs=[[{"secondary_y": True}]])
@@ -1389,7 +1480,7 @@ def app():
                 fig.update_layout(height=500, width=1500, title_text='Temperature and Precipitation Over Time', xaxis_title='Date')
                 fig.update_xaxes(rangeslider_visible = False, showline = True, linewidth = 2, linecolor = 'black', mirror = True)
                 fig.update_yaxes(showline = True, title_text='Temperature (°C)', linewidth = 2, linecolor = 'black', secondary_y=False)
-                fig.update_yaxes(title_text='Precipitation (mm)', linewidth = 2, linecolor = 'black', secondary_y=True)
+                fig.update_yaxes(title_text='Precipitation (in)', linewidth = 2, linecolor = 'black', secondary_y=True)
                   
                 fig.add_trace(go.Scatter(x = [datetime.strptime(dt['location']['localtime'], "%Y-%m-%d %H:%M")], y = [dt['current']['temp_c']], name = 'Current Time', mode='markers',marker = dict(color = 'blue', size = 10)))
                 st.plotly_chart(fig)
@@ -1469,3 +1560,65 @@ def app():
                     alerts = dt['alerts']["alert"]
                     alerts_str = ", ".join(alerts)  # Combine alerts into a single string
                     col1.markdown(f'<p style="color:red;">{alerts_str}</p>', unsafe_allow_html=True)
+                   
+                    """
+                note = ToastNotifier()
+                note.show_toast("Weather Notifications", "Activated!!!")
+            
+                update = "Council: {}\nRegion: {}\nCountry: {}\nLocal Time: {}\nTemperature: {}°C\nPrecipitation: {}in\nHumidity: {}%\nWind Speed: {}mph\nPressure: {}inHg\nClouds: {}\nHeat Index: {}°C\nDew Point: {}°C\nVisibility: {}miles\nGust: {} mph".format(
+                    dt['location']['name'], 
+                    dt['location']['region'], 
+                    'Tanzania', 
+                    dt['location']['localtime'], 
+                    dt['current']['temp_c'], 
+                    dt['current']["precip_in"],
+                    dt['current']["humidity"],
+                    dt['current']["wind_mph"], 
+                    dt['current']["pressure_in"], 
+                    dt['current']["condition"]['text'], 
+                    dt['current']['heatindex_c'], 
+                    dt['current']['dewpoint_c'], 
+                    dt['current']["vis_miles"], 
+                    dt['current']["gust_mph"])
+                
+                kit.sendwhatmsg("+918130067973", "Omdena OpenDevEd\n\n" + update, 5, 49)
+                pg.click(1050, 950)
+                time.sleep(2)
+                kb.press_and_release('enter')
+                
+                # pywhatkit.sendwhatmsg("+918130067973", 
+                #       update, 
+                #       3, 45, True)
+                """
+
+    with tab5: 
+        
+        st.title('Send Streamlit SMTP Email 🚀')
+
+        st.markdown("""**Enter Email Details and Share Your View/ Enquiry!**""")
+
+        # Taking inputs
+        email_sender   = st.text_input('From: ')
+        email_receiver = st.text_input('To: ')
+        subject        = st.text_input('Subject: ')
+        body           = st.text_area('Body: ')
+
+        # Hide the password input
+        password = st.text_input('Password: ', type="password", disabled=True)  
+
+        if st.button("Send Email"):
+            try:
+                msg = MIMEText(body)
+                msg['From'] = email_sender
+                msg['To'] = email_receiver
+                msg['Subject'] = subject
+
+                server = smtplib.SMTP('smtp.gmail.com', 587)
+                server.starttls()
+                server.login(st.secrets["email"]["gmail"], st.secrets["email"]["password"])
+                server.sendmail(email_sender, email_receiver, msg.as_string())
+                server.quit()
+
+                st.success('Email sent successfully! 🚀')
+            except Exception as e:
+                st.error(f"Failed to send email: {e}")
