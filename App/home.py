@@ -424,7 +424,11 @@ def app():
         showPredict = False
         st.session_state.predictions = [0]*7
         
-        if region:
+        if not region:
+            
+            st.info('Want to see what a Region can tell?', icon="ℹ️")  
+        
+        else:
             
             st.divider()
             
@@ -460,7 +464,11 @@ def app():
                                             index=None,
                                             placeholder="Select Council")
                 
-            if council:   
+            if not council:
+            
+                    st.info('Want to be a bit specific to Council?', icon="ℹ️") 
+        
+            else:  
                         
                 st.write('Selected Regions: {}'.format(region))
                 st.write('Selected Council: {}'.format(council))
@@ -500,7 +508,11 @@ def app():
                                                 index=None,
                                                 placeholder="Select Ward")
                     
-                if ward:   
+                if not ward:
+            
+                    st.info('Want to Explore deep-down to Wards?', icon="ℹ️")  
+        
+                else:    
                                 
                     st.write('Selected Regions: {}'.format(region))
                     st.write('Selected Council: {}'.format(council))
@@ -1592,6 +1604,9 @@ def app():
                 #       update, 
                 #       3, 45, True)
                 """
+                st.write('')
+                st.write('')
+                st.write('')
                 
                 account_sid = 'ACf653a498b5c1f653741c07592e091dba'
                 auth_token = '34d9864c72c500a257260754c4aac9bc'
@@ -1599,36 +1614,57 @@ def app():
                 # auth_token = os.environ["AUTH_TOKEN"]
                 client = Client(account_sid, auth_token)
                 
-                user_number = '918130067973'
-                message = client.messages.create(
+                with st.form(key='whatsapp_form'):
+                    user_number = st.text_input('Receive WhatsApp Notifications (Enter Number with Country Code):', placeholder = 'Format Ex: 353XXXXXXXXX')
+                    submit_button = st.form_submit_button(label='Get Notifications')
+
+                if submit_button:
+                    
+                    st.info('Notifications Activated for Next 3 Hours', icon="ℹ️")
+                    
+                    if user_number:
+                        
+                        try:
+                            message = client.messages.create(
                             from_= 'whatsapp:+14155238886',
                             body = 'Live Weather Status\n\n' + update,
                             to = 'whatsapp:+' + str(user_number)
-                )
+                            )
                             
-                message = client.messages.create(
+                            message = client.messages.create(
                             from_= 'whatsapp:+14155238886',
                             body = 'Weather Forecasting:\nFor Temperature and Precipitation\n\n',
                             to = 'whatsapp:+' + str(user_number)
-                )
-                
-                time.sleep(1)
+                            )
                             
-                current_time = datetime.strptime(datetime_str, "%Y-%m-%d %H:%M")
-                # Get the next three hours from the current time
-                time_intervals = [current_time + timedelta(hours=i) for i in range(3)]
+                            time.sleep(1)
                             
-                # Iterate through the time intervals and compare with the DataFrame times
-                for i in range(len(X)):
-                    data_time = X['time'][i]
-                
-                    if (current_time.date() == data_time.date() and current_time.time() <= data_time.time() < time_intervals[-1].time()):
-                        # print(data_time.strftime("%H:%M"))
-                        message = client.messages.create(
-                                from_= 'whatsapp:+14155238886',
-                                body = "Date: " + str(data_time.date()) + "\nTime: " + str(data_time.time()) + "\nT: " + str(X['temp'][i]) + " °C\nP: " + str(X['prcp'][i]) + " in\n\n",
-                                to = 'whatsapp:+' + str(user_number)
-                        )
+                            current_time = datetime.strptime(datetime_str, "%Y-%m-%d %H:%M")
+                            # Get the next three hours from the current time
+                            time_intervals = [current_time + timedelta(hours=i) for i in range(3)]
+                            
+                            # Iterate through the time intervals and compare with the DataFrame times
+                            for i in range(len(X)):
+                                data_time = X['time'][i]
+                                if (current_time.date() == data_time.date() and current_time.time() <= data_time.time() < time_intervals[-1].time()):
+                                    # print(data_time.strftime("%H:%M"))
+                                    message = client.messages.create(
+                                    from_= 'whatsapp:+14155238886',
+                                    body = "Date: " + str(data_time.date()) + "\nTime: " + str(data_time.time()) + "\nT: " + str(X['temp'][i]) + " °C\nP: " + str(X['prcp'][i]) + " in\n\n",
+                                    to = 'whatsapp:+' + str(user_number)
+                                    )
+                                    
+                            # st.success('Notifications on the way to your WhatsApp!!')
+                            msg = st.toast('Notifications on the Way!!', icon='🎉')
+                            time.sleep(1)
+                            msg.toast('Notifications on the way!!', icon='🔥')
+                            time.sleep(1)
+                            msg.toast('Notifications on the Way!!', icon='🚀')
+                            
+                        except Exception as e:
+                            st.error(f'Failed to Send Message: {e}')
+                    else:
+                        st.error('Please Enter a Valid WhatsApp Number.')
                               
                 
     with tab5: 
