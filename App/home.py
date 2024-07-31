@@ -1597,7 +1597,12 @@ def app():
                             body = 'Live Weather Status',
                             to = 'whatsapp:+' + str(user_number)
                             )
+                
+                account_sid = os.environ["TWILIO_ACCOUNT_SID"]
+                auth_token = os.environ["TWILIO_AUTH_TOKEN"]
+                client = Client(account_sid, auth_token)
 
+                
     with tab5: 
         
         st.title('Send Streamlit SMTP Email 🚀')
