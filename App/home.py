@@ -63,6 +63,7 @@ import plotly.figure_factory as ff
 from plotly.subplots import make_subplots
 
 from twilio.rest import Client
+import os
 
 # Weather Icons
 # https://www.iconfinder.com/
@@ -1557,15 +1558,19 @@ def app():
                     alerts_str = ", ".join(alerts)  # Combine alerts into a single string
                     col1.markdown(f'<p style="color:red;">{alerts_str}</p>', unsafe_allow_html=True)
                    
-                    """
+                """
                 note = ToastNotifier()
                 note.show_toast("Weather Notifications", "Activated!!!")
+                """
             
-                update = "Council: {}\nRegion: {}\nCountry: {}\nLocal Time: {}\nTemperature: {}°C\nPrecipitation: {}in\nHumidity: {}%\nWind Speed: {}mph\nPressure: {}inHg\nClouds: {}\nHeat Index: {}°C\nDew Point: {}°C\nVisibility: {}miles\nGust: {} mph".format(
+                ### WhatsApp Notification ---------------------------------------------------------------------------------------------
+                
+                update = "About Location\nCouncil:{}\nRegion : {}\nCountry: {}\nDate   : {}\nTime   : {}\n\nAbout Weather\nTemperature: {} °C\nPrecipitation: {} in\nHumidity   : {} %\nWind Speed : {} mph\nPressure   : {} inHg\n\nClouds     : {} \nHeat Index : {} °C\nDew Point  : {} °C\nVisibility : {} miles\nGust      : {} mph".format(
                     dt['location']['name'], 
                     dt['location']['region'], 
                     'Tanzania', 
-                    dt['location']['localtime'], 
+                    datetime.strptime(datetime_str, "%Y-%m-%d %H:%M").strftime("%Y-%m-%d"),
+                    datetime.strptime(datetime_str, "%Y-%m-%d %H:%M").strftime("%H:%M"), #dt['location']['localtime'], 
                     dt['current']['temp_c'], 
                     dt['current']["precip_in"],
                     dt['current']["humidity"],
@@ -1577,6 +1582,7 @@ def app():
                     dt['current']["vis_miles"], 
                     dt['current']["gust_mph"])
                 
+                """
                 kit.sendwhatmsg("+918130067973", "Omdena OpenDevEd\n\n" + update, 5, 49)
                 pg.click(1050, 950)
                 time.sleep(2)
@@ -1589,19 +1595,41 @@ def app():
                 
                 account_sid = 'ACf653a498b5c1f653741c07592e091dba'
                 auth_token = '34d9864c72c500a257260754c4aac9bc'
+                # account_sid = os.environ["ACCOUNT_SID"]
+                # auth_token = os.environ["AUTH_TOKEN"]
                 client = Client(account_sid, auth_token)
                 
                 user_number = '918130067973'
                 message = client.messages.create(
                             from_= 'whatsapp:+14155238886',
-                            body = 'Live Weather Status',
+                            body = 'Live Weather Status\n\n' + update,
                             to = 'whatsapp:+' + str(user_number)
-                            )
+                )
+                            
+                message = client.messages.create(
+                            from_= 'whatsapp:+14155238886',
+                            body = 'Weather Forecasting:\nFor Temperature and Precipitation\n\n',
+                            to = 'whatsapp:+' + str(user_number)
+                )
                 
-                account_sid = os.environ["TWILIO_ACCOUNT_SID"]
-                auth_token = os.environ["TWILIO_AUTH_TOKEN"]
-                client = Client(account_sid, auth_token)
-
+                time.sleep(1)
+                            
+                current_time = datetime.strptime(datetime_str, "%Y-%m-%d %H:%M")
+                # Get the next three hours from the current time
+                time_intervals = [current_time + timedelta(hours=i) for i in range(3)]
+                            
+                # Iterate through the time intervals and compare with the DataFrame times
+                for i in range(len(X)):
+                    data_time = X['time'][i]
+                
+                    if (current_time.date() == data_time.date() and current_time.time() <= data_time.time() < time_intervals[-1].time()):
+                        # print(data_time.strftime("%H:%M"))
+                        message = client.messages.create(
+                                from_= 'whatsapp:+14155238886',
+                                body = "Date: " + str(data_time.date()) + "\nTime: " + str(data_time.time()) + "\nT: " + str(X['temp'][i]) + " °C\nP: " + str(X['prcp'][i]) + " in\n\n",
+                                to = 'whatsapp:+' + str(user_number)
+                        )
+                              
                 
     with tab5: 
         
