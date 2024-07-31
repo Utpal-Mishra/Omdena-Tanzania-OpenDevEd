@@ -52,7 +52,7 @@ pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
 
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 
 # import geopandas as gpd
 import folium
@@ -62,11 +62,7 @@ import plotly.graph_objects as go
 import plotly.figure_factory as ff
 from plotly.subplots import make_subplots
 
-import base64
-from win10toast import ToastNotifier
-import pyautogui as pg
-import pywhatkit as kit
-import keyboard as kb
+from twilio.rest import Client
 
 # Weather Icons
 # https://www.iconfinder.com/
@@ -1590,6 +1586,17 @@ def app():
                 #       update, 
                 #       3, 45, True)
                 """
+                
+                account_sid = 'ACf653a498b5c1f653741c07592e091dba'
+                auth_token = '34d9864c72c500a257260754c4aac9bc'
+                client = Client(account_sid, auth_token)
+                
+                user_number = '918130067973'
+                message = client.messages.create(
+                            from_= 'whatsapp:+14155238886',
+                            body = 'Live Weather Status',
+                            to = 'whatsapp:+' + str(user_number)
+                            )
 
     with tab5: 
         
@@ -1622,3 +1629,4 @@ def app():
                 st.success('Email sent successfully! 🚀')
             except Exception as e:
                 st.error(f"Failed to send email: {e}")
+                
