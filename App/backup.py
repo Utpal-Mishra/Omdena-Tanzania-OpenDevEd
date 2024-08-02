@@ -52,7 +52,7 @@ pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
 
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 
 # import geopandas as gpd
 import folium
@@ -62,11 +62,8 @@ import plotly.graph_objects as go
 import plotly.figure_factory as ff
 from plotly.subplots import make_subplots
 
-import base64
-from win10toast import ToastNotifier
-import pyautogui as pg
-import pywhatkit as kit
-import keyboard as kb
+from twilio.rest import Client
+import os
 
 # Weather Icons
 # https://www.iconfinder.com/
@@ -98,7 +95,7 @@ def app():
     st.title("Omdena - OpenDevEd")
     st.header("AI-Driven Temperature Analysis for Educational Environments in Tanzania")
         
-    tab1, tab2 , tab3, tab4 = st.tabs(["About :information_source:", "Locating Schools :school:", "Weather Analysis :cloud:", "Forecasting :chart:"])
+    tab1, tab2 , tab3, tab4, tab5 = st.tabs(["About :information_source:", "Locating Schools :school:", "Weather Analysis :cloud:", "Forecasting :chart:", "Contact :phone:"])
     
     # Placeholder for Sidebar Content: sidebar_placeholder = st.sidebar.empty() 
        
@@ -225,17 +222,17 @@ def app():
         
     # Create a list of tile layers
     tile_layers = {
-        'OpenStreetMap': 'openstreetmap',
+        'Open Street Map': 'openstreetmap',
         'Stamen Terrain': 'Stamen Terrain',
         'Stamen Toner': 'Stamen Toner',
         'Stamen Watercolor': 'Stamen Watercolor',
-        'CartoDB positron': 'CartoDB positron',
-        'CartoDB dark_matter': 'CartoDB dark_matter',
+        'CartoDB Positron': 'CartoDB positron',
+        'CartoDB Dark Matter': 'CartoDB dark_matter',
         'Esri Satellite': 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
     }
 
     # Sidebar for tile layer selection
-    selected_tile = st.sidebar.selectbox('Select Tile Layer', list(tile_layers.keys()))
+    selected_tile = st.sidebar.selectbox('Select Tile Layer', list(tile_layers.keys())) #, index=None, placeholder="Select Map Tile")
 
     # Main content area
     with tab2:
@@ -264,6 +261,7 @@ def app():
         # Optionally add other markers or layers
         Marker = folium.map.FeatureGroup()
         MousePosition().add_to(Map)
+        Map.add_child(folium.LatLngPopup())
     
         # Add-ons -----------------------------------------
         tanzania_border = geopandas.read_file("./tanzania.geojson")
@@ -413,7 +411,9 @@ def app():
         #         """,
         #         unsafe_allow_html=True,
         #     )
-                
+           
+        schoolMarkers = []   
+        map = None
         # Custom CSS to position the text at the bottom right of the sidebar      
         region = st.sidebar.selectbox('Select Region', 
                                     tuple(sorted(set(list(data['Region'])))),
@@ -421,7 +421,14 @@ def app():
                                     placeholder = "Select Region",
                                     key = 's1')
 
-        if region:
+        showPredict = False
+        st.session_state.predictions = [0]*7
+        
+        if not region:
+            
+            st.info('Want to see what a Region can tell?', icon="ℹ️")  
+        
+        else:
             
             st.divider()
             
@@ -457,7 +464,11 @@ def app():
                                             index=None,
                                             placeholder="Select Council")
                 
-            if council:   
+            if not council:
+            
+                    st.info('Want to be a bit specific to Council?', icon="ℹ️") 
+        
+            else:  
                         
                 st.write('Selected Regions: {}'.format(region))
                 st.write('Selected Council: {}'.format(council))
@@ -497,7 +508,11 @@ def app():
                                                 index=None,
                                                 placeholder="Select Ward")
                     
-                if ward:   
+                if not ward:
+            
+                    st.info('Want to Explore deep-down to Wards?', icon="ℹ️")  
+        
+                else:    
                                 
                     st.write('Selected Regions: {}'.format(region))
                     st.write('Selected Council: {}'.format(council))
@@ -1474,7 +1489,7 @@ def app():
                 fig.update_layout(height=500, width=1500, title_text='Temperature and Precipitation Over Time', xaxis_title='Date')
                 fig.update_xaxes(rangeslider_visible = False, showline = True, linewidth = 2, linecolor = 'black', mirror = True)
                 fig.update_yaxes(showline = True, title_text='Temperature (°C)', linewidth = 2, linecolor = 'black', secondary_y=False)
-                fig.update_yaxes(title_text='Precipitation (mm)', linewidth = 2, linecolor = 'black', secondary_y=True)
+                fig.update_yaxes(title_text='Precipitation (in)', linewidth = 2, linecolor = 'black', secondary_y=True)
                   
                 fig.add_trace(go.Scatter(x = [datetime.strptime(dt['location']['localtime'], "%Y-%m-%d %H:%M")], y = [dt['current']['temp_c']], name = 'Current Time', mode='markers',marker = dict(color = 'blue', size = 10)))
                 st.plotly_chart(fig)
@@ -1555,15 +1570,19 @@ def app():
                     alerts_str = ", ".join(alerts)  # Combine alerts into a single string
                     col1.markdown(f'<p style="color:red;">{alerts_str}</p>', unsafe_allow_html=True)
                    
-                    """
+                """
                 note = ToastNotifier()
                 note.show_toast("Weather Notifications", "Activated!!!")
+                """
             
-                update = "Council: {}\nRegion: {}\nCountry: {}\nLocal Time: {}\nTemperature: {}°C\nPrecipitation: {}in\nHumidity: {}%\nWind Speed: {}mph\nPressure: {}inHg\nClouds: {}\nHeat Index: {}°C\nDew Point: {}°C\nVisibility: {}miles\nGust: {} mph".format(
+                ### WhatsApp Notification ---------------------------------------------------------------------------------------------
+                
+                update = "About Location\nCouncil:{}\nRegion : {}\nCountry: {}\nDate   : {}\nTime   : {}\n\nAbout Weather\nTemperature: {} °C\nPrecipitation: {} in\nHumidity   : {} %\nWind Speed : {} mph\nPressure   : {} inHg\n\nClouds     : {} \nHeat Index : {} °C\nDew Point  : {} °C\nVisibility : {} miles\nGust      : {} mph".format(
                     dt['location']['name'], 
                     dt['location']['region'], 
                     'Tanzania', 
-                    dt['location']['localtime'], 
+                    datetime.strptime(datetime_str, "%Y-%m-%d %H:%M").strftime("%Y-%m-%d"),
+                    datetime.strptime(datetime_str, "%Y-%m-%d %H:%M").strftime("%H:%M"), #dt['location']['localtime'], 
                     dt['current']['temp_c'], 
                     dt['current']["precip_in"],
                     dt['current']["humidity"],
@@ -1575,6 +1594,7 @@ def app():
                     dt['current']["vis_miles"], 
                     dt['current']["gust_mph"])
                 
+                """
                 kit.sendwhatmsg("+918130067973", "Omdena OpenDevEd\n\n" + update, 5, 49)
                 pg.click(1050, 950)
                 time.sleep(2)
@@ -1584,4 +1604,98 @@ def app():
                 #       update, 
                 #       3, 45, True)
                 """
+                st.write('')
+                st.write('')
+                st.write('')
+                
+                account_sid = 'ACf653a498b5c1f653741c07592e091dba'
+                auth_token = '34d9864c72c500a257260754c4aac9bc'
+                # account_sid = os.environ["ACCOUNT_SID"]
+                # auth_token = os.environ["AUTH_TOKEN"]
+                client = Client(account_sid, auth_token)
+                
+                with st.form(key='whatsapp_form'):
+                    user_number = st.text_input('Receive WhatsApp Notifications (Enter Number with Country Code):', placeholder = 'Format Ex: 353XXXXXXXXX')
+                    submit_button = st.form_submit_button(label='Get Notifications')
+
+                if submit_button:
+                    
+                    st.info('Notifications Activated for Next 3 Hours', icon="ℹ️")
+                    
+                    if user_number:
+                        
+                        try:
+                            message = client.messages.create(
+                            from_= 'whatsapp:+14155238886',
+                            body = 'Live Weather Status\n\n' + update,
+                            to = 'whatsapp:+' + str(user_number)
+                            )
+                            
+                            message = client.messages.create(
+                            from_= 'whatsapp:+14155238886',
+                            body = 'Weather Forecasting:\nFor Temperature and Precipitation\n\n',
+                            to = 'whatsapp:+' + str(user_number)
+                            )
+                            
+                            time.sleep(1)
+                            
+                            current_time = datetime.strptime(datetime_str, "%Y-%m-%d %H:%M")
+                            # Get the next three hours from the current time
+                            time_intervals = [current_time + timedelta(hours=i) for i in range(3)]
+                            
+                            # Iterate through the time intervals and compare with the DataFrame times
+                            for i in range(len(X)):
+                                data_time = X['time'][i]
+                                if (current_time.date() == data_time.date() and current_time.time() <= data_time.time() < time_intervals[-1].time()):
+                                    # print(data_time.strftime("%H:%M"))
+                                    message = client.messages.create(
+                                    from_= 'whatsapp:+14155238886',
+                                    body = "Date: " + str(data_time.date()) + "\nTime: " + str(data_time.time()) + "\nT: " + str(X['temp'][i]) + " °C\nP: " + str(X['prcp'][i]) + " in\n\n",
+                                    to = 'whatsapp:+' + str(user_number)
+                                    )
+                                    
+                            # st.success('Notifications on the way to your WhatsApp!!')
+                            msg = st.toast('Notifications on the Way!!', icon='🎉')
+                            time.sleep(1)
+                            msg.toast('Notifications on the way!!', icon='🔥')
+                            time.sleep(1)
+                            msg.toast('Notifications on the Way!!', icon='🚀')
+                            
+                        except Exception as e:
+                            st.error(f'Failed to Send Message: {e}')
+                    else:
+                        st.error('Please Enter a Valid WhatsApp Number.')
+                              
+                
+    with tab5: 
+        
+        st.title('Send Streamlit SMTP Email 🚀')
+
+        st.markdown("""**Enter Email Details and Share Your View/ Enquiry!**""")
+
+        # Taking inputs
+        email_sender   = st.text_input('From: ')
+        email_receiver = st.text_input('To: ')
+        subject        = st.text_input('Subject: ')
+        body           = st.text_area('Body: ')
+
+        # Hide the password input
+        password = st.text_input('Password: ', type="password", disabled=True)  
+
+        if st.button("Send Email"):
+            try:
+                msg = MIMEText(body)
+                msg['From'] = email_sender
+                msg['To'] = email_receiver
+                msg['Subject'] = subject
+
+                server = smtplib.SMTP('smtp.gmail.com', 587)
+                server.starttls()
+                server.login(st.secrets["email"]["gmail"], st.secrets["email"]["password"])
+                server.sendmail(email_sender, email_receiver, msg.as_string())
+                server.quit()
+
+                st.success('Email Sent Successfully! 🚀')
+            except Exception as e:
+                st.error(f"Failed to Send Email: {e}")
                 
