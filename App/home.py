@@ -43,6 +43,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 import plotly.figure_factory as ff
 from plotly.subplots import make_subplots
+import matplotlib.pyplot as plt
 
 from twilio.rest import Client
 import os
@@ -966,8 +967,8 @@ def app():
             for i in range(map.shape[0]):
                                 
                 params = {
-                    "latitude": map['Latitude'][i],
-                    "longitude": map['Longitude'][i],
+                    "latitude": map['Latitude'].iloc[i],
+                    "longitude": map['Longitude'].iloc[i],
                     "daily": "river_discharge",
                     "past_days": 7,
                     "forecast_days": 14
@@ -997,16 +998,45 @@ def app():
                 daily_data['region'] = region
                 daily_data['council'] = council
                 daily_data['ward'] = ward
-                daily_data['school_name'] = map['SchoolName'][i]
+                daily_data['school_name'] = map['SchoolName'].iloc[i]
                 daily_data['latitude'] = round(response.Latitude(), 5)
                 daily_data['longitude'] = round(response.Longitude(), 5)
                 daily_data["river_discharge"] = daily_river_discharge
                 
                 # daily_dataframe = daily_dataframe.append(pd.DataFrame(data = daily_data))
                 daily_dataframe = pd.concat([daily_dataframe, pd.DataFrame(data = daily_data)], ignore_index=True)
+                
                 # daily_dataframe = pd.DataFrame(data = daily_data)
                 
-            st.dataframe(daily_dataframe)
+            # st.dataframe(daily_dataframe)
+            
+            # Multi-select box for school names with default selection set to all available names
+            school_names = daily_dataframe['school_name'].unique()
+            selected_schools = st.multiselect('Select School(s)', options=school_names, default=list(school_names))
+
+            # Filter data based on selected schools
+            filtered_data = daily_dataframe[daily_dataframe['school_name'].isin(selected_schools)]
+
+            # Plotting the data
+            st.write("### River Discharge Over Time")
+
+            # Create subplots with secondary y-axis
+            fig = make_subplots(specs=[[{"secondary_y": True}]])
+
+            # Add traces for each selected school
+            for school in selected_schools:
+                school_data = filtered_data[filtered_data['school_name'] == school]
+                fig.add_trace(go.Scatter(x=school_data['date'], y=school_data['river_discharge'], 
+                                        name=f'River Discharge - {school}', mode='lines', 
+                                        line=dict(width=2)), secondary_y=False)
+
+            # Update layout
+            fig.update_layout(height=700, width=1500, title_text='River Discharge Over Time by School', xaxis_title='Date')
+            fig.update_xaxes(rangeslider_visible=True, showline=True, linewidth=2, linecolor='black', mirror=True)
+            fig.update_yaxes(showline=True, title_text='River Discharge (m³/s)', linewidth=2, linecolor='black', secondary_y=False)
+
+            # Display the plot
+            st.plotly_chart(fig)
 
         # ------------------------------------------------------------- #
         
