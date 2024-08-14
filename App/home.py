@@ -92,12 +92,13 @@ def app():
     st.title("Omdena - OpenDevEd")
     st.header("AI-Driven Temperature Analysis for Educational Environments in Tanzania")
         
-    tab1, tab2 , tab3, tab4, tab5, tab6 = st.tabs(["About :information_source:", 
-                                             "Locating Schools :school:", 
-                                             "Weather Analysis :cloud:", 
-                                             "Weather Report :chart:",
-                                             "Flood Report :ocean:", 
-                                             "Contact :phone:"])
+    tab1, tab2 , tab3, tab4, tab5, tab6, tab7 = st.tabs(["About :information_source:", 
+                                                "Locating Schools :school:", 
+                                                "Weather Analysis :cloud:", 
+                                                "Weather Report :chart:",
+                                                "Flood Report :ocean:", 
+                                                "Contact :phone:",
+                                                "Team :people_holding_hands:"])
     
     # Placeholder for Sidebar Content: sidebar_placeholder = st.sidebar.empty() 
            
@@ -1076,5 +1077,156 @@ def app():
         
         # ------------------------------------------------------------- #
         
+    with tab7:
+        
+        st.header("Project Collaborators")
+        
+        st.write('')
+        st.write('')
+        st.write('')
+        st.write('')
+
+        # Collaborators information
+        collaborators = [
+            # {  
+            #     "name": "Duplex",
+            #     "designation": "Project Manager",
+            #     "image": "Icon.png",
+            #     "linkedin": "https://www.linkedin.com/in/johndoe/"
+            # },
+            {
+                "name": "Abhishek Dutta",
+                "designation": "Machine Learning Engineer",
+                "image": "Icon.png",
+                "linkedin": "https://www.linkedin.com/in/abhishekdutta404/"
+            },
+            {
+                "name": "Adham Vats",
+                "designation": "Data Scientist",
+                "image": "Icon.png",
+                "linkedin": "https://www.linkedin.com/in/alicejohnson/"
+            },
+            {
+                "name": "Anant Vats",
+                "designation": "Data Scientist",
+                "image": "Icon.png",
+                "linkedin": "https://www.linkedin.com/in/alicejohnson/"
+            },
+            {
+                "name": "Asia (N Noble)",
+                "designation": "Junior Machine Learning Engineer",
+                "image": "Icon.png",
+                "linkedin": "https://www.linkedin.com/in/alicejohnson/"
+            },
+            {
+                "name": "Dennis Mwangi",
+                "designation": "Junior Machine Learning Engineer",
+                "image": "Icon.png",
+                "linkedin": "https://www.linkedin.com/in/alicejohnson/"
+            },
+            {  
+                "name": "Indri",
+                "designation": "Junior Machine Learning Engineer",
+                "image": "Icon.png",
+                "linkedin": "https://www.linkedin.com/in/johndoe/"
+            },
+            {  
+                "name": "Jose Mojica Perez",
+                "designation": "Project Manager",
+                "image": "Icon.png",
+                "linkedin": "https://www.linkedin.com/in/jlmojicaperez/"
+            },
+            {  
+                "name": "Krishna Karthik Polisetty",
+                "designation": "Junior Machine Learning Engineer",
+                "image": "Icon.png",
+                "linkedin": "https://www.linkedin.com/in/karthikpolisetty"
+            },
+            {  
+                "name": "Omkar Bhatkande",
+                "designation": "Data Scientist",
+                "image": "Icon.png",
+                "linkedin": "https://www.linkedin.com/in/omkar-bhatkande/"
+            },
+            {
+                "name": "Raza Mehar",
+                "designation": "Data Scientist",
+                "image": "Icon.png",
+                "linkedin": "https://www.linkedin.com/in/alicejohnson/"
+            },
+            {
+                "name": "Tanaya Sharma",
+                "designation": "Data Scientist",
+                "image": "Icon.png",
+                "linkedin": "https://www.linkedin.com/in/alicejohnson/"
+            },
+            {
+                "name": "Utpal Mishra",
+                "designation": "Machine Learning Engineer and Developer",
+                "image": "Icon.png",
+                "linkedin": "https://www.linkedin.com/in/utpal-mishra/"
+            },
+            {
+                "name": "Viktoriia",
+                "designation": "Data Scientist",
+                "image": "Icon.png",
+                "linkedin": "https://www.linkedin.com/in/alicejohnson/"
+            },
+            {
+                "name": "Vignesha Jayakumar",
+                "designation": "Machine Learning Engineer",
+                "image": "Icon.png",
+                "linkedin": "https://www.linkedin.com/in/alicejohnson/"
+            },
+            {
+                "name": "Zainab Akhtar",
+                "designation": "Machine Learning Engineer",
+                "image": "Icon.png",
+                "linkedin": "https://www.linkedin.com/in/zainabakhtar/"
+            }
+        ]
+        
+        
+        # Display the first collaborator in the center
+        # center_col = st.columns([1, 1, 1])[1]  # Create three columns and use the middle one
+
+        # with center_col:
+        #     # st.header("Project Lead")
+        #     # st.write("")
+        #     # st.write("")
+        #     # st.write("")
+        
+        #     st.image(collaborators[0]["image"], width = 150)
+        #     st.subheader(collaborators[0]["name"])
+        #     st.write(collaborators[0]['designation']) # st.write(f"**Designation:** {collaborators[0]['designation']}")
+        #     st.write(f"[LinkedIn Profile]({collaborators[0]['linkedin']})")
+
+        #  st.write("---")
+        
+        # Use a loop to display collaborators in pairs
+        for i in range(1, len(collaborators), 2):
+            col1, col2 = st.columns(2)
+            
+            # First collaborator in the row
+            with col1:
+                st.image(collaborators[i]["image"], width=150)
+                st.subheader(collaborators[i]["name"])
+                st.write(f"**Designation:** {collaborators[i]['designation']}")
+                st.write(f"[LinkedIn Profile]({collaborators[i]['linkedin']})")
+
+            # Second collaborator in the row (if exists)
+            if i + 1 < len(collaborators):
+                with col2:
+                    st.image(collaborators[i + 1]["image"], width=150)
+                    st.subheader(collaborators[i + 1]["name"])
+                    st.write(f"**Designation:** {collaborators[i + 1]['designation']}")
+                    st.write(f"[LinkedIn Profile]({collaborators[i + 1]['linkedin']})")
+
+            st.write("---")
+
+
+        # Footer
+        st.write("### Thank you to all our collaborators! 🎉")
+    
     #################################################################
         
