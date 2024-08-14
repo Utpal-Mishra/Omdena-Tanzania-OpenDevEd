@@ -47,10 +47,15 @@ from plotly.subplots import make_subplots
 from twilio.rest import Client
 import os
 
+import openmeteo_requests
+import requests_cache
+import pandas as pd
+from retry_requests import retry
+
 # Weather Icons
 # https://www.iconfinder.com/
         
-print('\n\nNEW RUN\nLibraries Imported\n')
+print('\nLibraries Imported\n')
 
 # ------------------------------------------------------------- #
 
@@ -86,10 +91,11 @@ def app():
     st.title("Omdena - OpenDevEd")
     st.header("AI-Driven Temperature Analysis for Educational Environments in Tanzania")
         
-    tab1, tab2 , tab3, tab4, tab5 = st.tabs(["About :information_source:", 
+    tab1, tab2 , tab3, tab4, tab5, tab6 = st.tabs(["About :information_source:", 
                                              "Locating Schools :school:", 
                                              "Weather Analysis :cloud:", 
-                                             "Weather Report :chart:", 
+                                             "Weather Report :chart:",
+                                             "Flood Report :ocean:", 
                                              "Contact :phone:"])
     
     # Placeholder for Sidebar Content: sidebar_placeholder = st.sidebar.empty() 
@@ -936,7 +942,75 @@ def app():
         
         # ------------------------------------------------------------- #
         
-    with tab5: 
+    with tab5:
+        
+        st.write('Flood Report')
+        
+        if region and council and ward:
+                        
+            # map = data.loc[(data['Region'] == region) & (data['Council'] == council) & (data['Ward'] == ward)]
+            
+            # st.write(map)
+            
+            daily_dataframe = pd.DataFrame(columns=['date', 'latitude', 'longitude', 'region', 'council', 'ward', 'school_name', 'river_discharge'])
+                                   
+            # Setup the Open-Meteo API client with cache and retry on error
+            cache_session = requests_cache.CachedSession('.cache', expire_after = 3600)
+            retry_session = retry(cache_session, retries = 5, backoff_factor = 0.2)
+            openmeteo = openmeteo_requests.Client(session = retry_session)
+
+            # Make sure all required weather variables are listed here
+            # The order of variables in hourly or daily is important to assign them correctly below
+            url = "https://flood-api.open-meteo.com/v1/flood"
+                        
+            for i in range(map.shape[0]):
+                                
+                params = {
+                    "latitude": map['Latitude'][i],
+                    "longitude": map['Longitude'][i],
+                    "daily": "river_discharge",
+                    "past_days": 7,
+                    "forecast_days": 14
+                }
+                responses = openmeteo.weather_api(url, params=params)
+
+                # Process first location. Add a for-loop for multiple locations or weather models
+                response = responses[0]
+                print(f"Coordinates {round(response.Latitude(), 5)}°N {round(response.Longitude(), 5)}°E")
+                print(f"Elevation {response.Elevation()} m asl")
+                # print(f"Timezone {response.Timezone()} {response.TimezoneAbbreviation()}")
+                # print(f"Timezone difference to GMT+0 {response.UtcOffsetSeconds()} s")
+
+                # Process daily data. The order of variables needs to be the same as requested.
+                daily = response.Daily()
+                daily_river_discharge = daily.Variables(0).ValuesAsNumpy()
+            
+                daily_data = {"date": pd.date_range(
+                    start = pd.to_datetime(daily.Time(), unit = "s", utc = True),
+                    end = pd.to_datetime(daily.TimeEnd(), unit = "s", utc = True),
+                    freq = pd.Timedelta(seconds = daily.Interval()),
+                    inclusive = "left"
+                )}
+                
+                # st.write(map['SchoolName'][i])
+                
+                daily_data['region'] = region
+                daily_data['council'] = council
+                daily_data['ward'] = ward
+                daily_data['school_name'] = map['SchoolName'][i]
+                daily_data['latitude'] = round(response.Latitude(), 5)
+                daily_data['longitude'] = round(response.Longitude(), 5)
+                daily_data["river_discharge"] = daily_river_discharge
+                
+                # daily_dataframe = daily_dataframe.append(pd.DataFrame(data = daily_data))
+                daily_dataframe = pd.concat([daily_dataframe, pd.DataFrame(data = daily_data)], ignore_index=True)
+                # daily_dataframe = pd.DataFrame(data = daily_data)
+                
+            st.dataframe(daily_dataframe)
+
+        # ------------------------------------------------------------- #
+        
+    with tab6: 
         
         # ------------------------------------------------------------- #
         
