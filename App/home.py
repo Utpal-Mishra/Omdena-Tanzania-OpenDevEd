@@ -1079,129 +1079,196 @@ def app():
         
     with tab7:
         
-        st.header("Project Collaborators")
         
-        st.write('')
-        st.write('')
-        st.write('')
-        st.write('')
+        # Set the title of the Streamlit app
+        # st.title("Project Development Weekly Timeline")
 
+        # Example data
+        # start_date = datetime.strptime('20-05-2024', '%d-%m-%Y')
+        # end_date = datetime.strptime('17-08-2024', '%d-%m-%Y')
+        # dates = pd.date_range(start=start_date, end=end_date, freq='W-MON')
+
+        # Ensure the number of events matches the number of dates
+        # events = [
+        #     "Literature Review", "Data Collection", "Simulation Tools",
+        #     "EDA", "Model Development", "Model Training", 
+        #     "Model Testing and Deployment", "Dashboard Development", "Cloud Integrations", 
+        #     "Reproducible Framework"
+        # ]
+
+        # df = pd.DataFrame([
+        #     dict(Task="Literature Review",            Start='2024-06-06', Finish='2024-06-15', Resource="Week 1-2"),
+        #     dict(Task="Data Collection",              Start='2024-06-13', Finish='2024-06-29', Resource="Week 2-4"),
+        #     dict(Task="Simulation Tools",             Start='2024-06-20', Finish='2024-07-27', Resource="Week 3-8"),
+        #     dict(Task="EDA",                          Start='2024-06-20', Finish='2024-07-20', Resource="Week 3-7"),
+        #     dict(Task="Model Development",            Start='2024-07-11', Finish='2024-07-30', Resource="Week 5-7"),
+        #     dict(Task="Model Testing",                Start='2024-07-18', Finish='2024-05-30', Resource="Week 6-8"),
+        #     dict(Task="Dashboard Development",        Start='2024-03-05', Finish='2024-04-15', Resource="Week 5-9"),
+        #     dict(Task="Cloud Integration",            Start='2024-02-20', Finish='2024-05-30', Resource="Week 7-9"),
+        #     # dict(Task="Final Review", Start='2024-03-05', Finish='2024-04-15', Resource="Alex"),
+        #     dict(Task="Reproducible Framework",       Start='2024-08-09', Finish='2024-08-18', Resource="Week 8-10"),
+        #     # dict(Task="Kick-Off Call", Start='2024-06-06', Finish='2024-06-06', Resource="Alex"),
+        #     # dict(Task="Mid-term Presentation", Start='2024-07-20', Finish='2024-07-20', Resource="Max"),
+        #     # dict(Task="Final Presentation", Start='2024-08-18', Finish='2024-08-18', Resource="Max")
+        # ])
+                
+        # # Define the DataFrame with tasks and their start/finish dates
+        # df = pd.DataFrame([
+        #     dict(Task="Job A", Start='2009-01-01', Finish='2009-02-28'),
+        #     dict(Task="Job B", Start='2009-03-05', Finish='2009-04-15'),
+        #     dict(Task="Job C", Start='2009-02-20', Finish='2009-05-30')
+        # ])
+
+        # # Convert Start and Finish columns to datetime
+        # df['Start'] = pd.to_datetime(df['Start'])
+        # df['Finish'] = pd.to_datetime(df['Finish'])
+
+        # # Display the DataFrame in the Streamlit app
+        # st.dataframe(df)
+
+        # # Create the timeline plot using Plotly Express
+        # fig = px.timeline(df, x_start="Start", x_end="Finish", y="Task")
+
+        # # Reverse the Y-axis to have the first task at the top
+        # fig.update_yaxes(autorange="reversed")
+
+        # # Display the plot in Streamlit
+        # st.plotly_chart(fig)
+        
+        # Ensure all dates are serialized
+        # fig.update_xaxes(type="date")
+        # fig.update_layout(
+        #     xaxis_title="Date",
+        #     yaxis_title="Tasks",
+        #     title_x=0.5,
+        #     height=600,
+        #     width=1000,
+        #     showlegend=False,
+        #     xaxis = dict(tickformat = "%b %d", tickangle = 45))
+
+        # Display the plot in the Streamlit app
+        # st.plotly_chart(fig)
+
+        # Add some additional text or features if needed
+        # st.write("*This timeline illustrates the project's progress from initial discussions to deployment preparation.")
+        
+        # st.divider()
+        
+        ##############################################################################
+        
         # Collaborators information
         collaborators = [
-            # {  
-            #     "name": "Duplex",
-            #     "designation": "Project Manager",
-            #     "image": "Icon.png",
-            #     "linkedin": "https://www.linkedin.com/in/johndoe/"
-            # },
+            {  
+                "name": "Younkap Duplex",
+                "designation": "Project Manager",
+                "image": "YND.jpeg",
+                "linkedin": "https://www.linkedin.com/in/duplex-younkap-nina-engineer/"
+            },
             {
                 "name": "Abhishek Dutta",
-                "designation": "Machine Learning Engineer",
-                "image": "Icon.png",
+                "designation": "ML Engineer",
+                "image": "AD.jpeg",
                 "linkedin": "https://www.linkedin.com/in/abhishekdutta404/"
             },
             {
-                "name": "Adham Vats",
+                "name": "Adham Walid",
                 "designation": "Data Scientist",
-                "image": "Icon.png",
-                "linkedin": "https://www.linkedin.com/in/alicejohnson/"
+                "image": "AW.jpeg",
+                "linkedin": "http://linkedin.com/in/adhamwalid-engineer"
             },
             {
                 "name": "Anant Vats",
                 "designation": "Data Scientist",
-                "image": "Icon.png",
-                "linkedin": "https://www.linkedin.com/in/alicejohnson/"
+                "image": "AV.jpeg",
+                "linkedin": "http://www.linkedin.com/in/anant-vats-4122ab6"
             },
             {
-                "name": "Asia (N Noble)",
-                "designation": "Junior Machine Learning Engineer",
-                "image": "Icon.png",
-                "linkedin": "https://www.linkedin.com/in/alicejohnson/"
-            },
-            {
-                "name": "Dennis Mwangi",
-                "designation": "Junior Machine Learning Engineer",
-                "image": "Icon.png",
-                "linkedin": "https://www.linkedin.com/in/alicejohnson/"
+                "name": "Denis Mwangi",
+                "designation": "Junior ML Engineer",
+                "image": "DM.jpeg",
+                "linkedin": "https://www.linkedin.com/in/kingkingori/"
             },
             {  
-                "name": "Indri",
-                "designation": "Junior Machine Learning Engineer",
-                "image": "Icon.png",
-                "linkedin": "https://www.linkedin.com/in/johndoe/"
+                "name": "Indri Adisoemarta",
+                "designation": "Junior ML Engineer",
+                "image": "IA.jpeg",
+                "linkedin": "https://www.linkedin.com/in/indri-adisoemarta"
             },
             {  
                 "name": "Jose Mojica Perez",
-                "designation": "Project Manager",
-                "image": "Icon.png",
+                "designation": "ML Engineer",
+                "image": "JMP.jpeg",
                 "linkedin": "https://www.linkedin.com/in/jlmojicaperez/"
             },
             {  
                 "name": "Krishna Karthik Polisetty",
-                "designation": "Junior Machine Learning Engineer",
-                "image": "Icon.png",
-                "linkedin": "https://www.linkedin.com/in/karthikpolisetty"
+                "designation": "Junior ML Engineer",
+                "image": "KKP.jpeg",
+                "linkedin": "https://www.linkedin.com/in/karthikpolisetty/"
             },
             {  
                 "name": "Omkar Bhatkande",
                 "designation": "Data Scientist",
-                "image": "Icon.png",
+                "image": "OB.jpeg",
                 "linkedin": "https://www.linkedin.com/in/omkar-bhatkande/"
             },
             {
                 "name": "Raza Mehar",
                 "designation": "Data Scientist",
-                "image": "Icon.png",
-                "linkedin": "https://www.linkedin.com/in/alicejohnson/"
+                "image": "RM.jpeg",
+                "linkedin": "https://www.linkedin.com/in/razamehar/"
             },
             {
                 "name": "Tanaya Sharma",
-                "designation": "Data Scientist",
-                "image": "Icon.png",
-                "linkedin": "https://www.linkedin.com/in/alicejohnson/"
+                "designation": "ML Engineer",
+                "image": "TS.jpeg",
+                "linkedin": "https://www.linkedin.com/in/tanaya-sharma-080b529b"
             },
             {
                 "name": "Utpal Mishra",
-                "designation": "Machine Learning Engineer and Developer",
-                "image": "Icon.png",
+                "designation": "ML Engineer & Developer",
+                "image": "UM.jpeg",
                 "linkedin": "https://www.linkedin.com/in/utpal-mishra/"
+            },
+            {
+                "name": "Vignesha Jayakumar",
+                "designation": "ML Engineer",
+                "image": "VJ.jpeg",
+                "linkedin": "https://www.linkedin.com/in/vigneshaj/"
             },
             {
                 "name": "Viktoriia",
                 "designation": "Data Scientist",
-                "image": "Icon.png",
-                "linkedin": "https://www.linkedin.com/in/alicejohnson/"
-            },
-            {
-                "name": "Vignesha Jayakumar",
-                "designation": "Machine Learning Engineer",
-                "image": "Icon.png",
-                "linkedin": "https://www.linkedin.com/in/alicejohnson/"
+                "image": "V.jpeg",
+                "linkedin": "https://www.linkedin.com/in/viktoriia-voloshyna-phd/"
             },
             {
                 "name": "Zainab Akhtar",
-                "designation": "Machine Learning Engineer",
-                "image": "Icon.png",
+                "designation": "ML Engineer",
+                "image": "ZA.jpeg",
                 "linkedin": "https://www.linkedin.com/in/zainabakhtar/"
             }
         ]
         
         
         # Display the first collaborator in the center
-        # center_col = st.columns([1, 1, 1])[1]  # Create three columns and use the middle one
+        center_col = st.columns([1, 1, 1])[1]  # Create three columns and use the middle one
 
-        # with center_col:
-        #     # st.header("Project Lead")
-        #     # st.write("")
-        #     # st.write("")
-        #     # st.write("")
+        with center_col:
+            st.header("Project Lead")
+            st.write("")
+            st.write("")
         
-        #     st.image(collaborators[0]["image"], width = 150)
-        #     st.subheader(collaborators[0]["name"])
-        #     st.write(collaborators[0]['designation']) # st.write(f"**Designation:** {collaborators[0]['designation']}")
-        #     st.write(f"[LinkedIn Profile]({collaborators[0]['linkedin']})")
+            st.image(collaborators[0]["image"], width = 150)
+            st.subheader(collaborators[0]["name"])
+            st.subheader(collaborators[0]['designation']) # st.write(f"**Designation:** {collaborators[0]['designation']}")
+            st.write(f"[LinkedIn Profile]({collaborators[0]['linkedin']})")
 
-        #  st.write("---")
+        st.divider()
+        
+        st.header("Project Collaborators")
+        st.write("")
+        st.write("")
         
         # Use a loop to display collaborators in pairs
         for i in range(1, len(collaborators), 2):
@@ -1211,7 +1278,7 @@ def app():
             with col1:
                 st.image(collaborators[i]["image"], width=150)
                 st.subheader(collaborators[i]["name"])
-                st.write(f"**Designation:** {collaborators[i]['designation']}")
+                st.subheader(collaborators[i]['designation'])
                 st.write(f"[LinkedIn Profile]({collaborators[i]['linkedin']})")
 
             # Second collaborator in the row (if exists)
@@ -1219,9 +1286,9 @@ def app():
                 with col2:
                     st.image(collaborators[i + 1]["image"], width=150)
                     st.subheader(collaborators[i + 1]["name"])
-                    st.write(f"**Designation:** {collaborators[i + 1]['designation']}")
+                    st.subheader(collaborators[i + 1]['designation'])
                     st.write(f"[LinkedIn Profile]({collaborators[i + 1]['linkedin']})")
-
+                
             st.write("---")
 
 
