@@ -39,6 +39,9 @@ from datetime import datetime, timedelta
 # import geopandas as gpd
 import folium
 from folium.plugins import HeatMap
+
+from PIL import Image, ImageOps
+
 import plotly.express as px
 import plotly.graph_objects as go
 import plotly.figure_factory as ff
@@ -84,10 +87,10 @@ def app():
     col1, col2 = st.columns(2)
 
     with col1:
-        st.image("Omdena.png")
+        st.image("images/Omdena.png")
 
     with col2:
-        st.image('Tanzania.png', width = 130)
+        st.image('images/Tanzania.png', width = 130)
 
     st.title("Omdena - OpenDevEd")
     st.header("AI-Driven Temperature Analysis for Educational Environments in Tanzania")
@@ -406,6 +409,10 @@ def app():
                             
                         st.sidebar.header("Couldn't Find a School?")
                         
+                        # Initialize session state variables
+                        if 'location_added' not in st.session_state:
+                            st.session_state.location_added = False
+            
                         # st.sidebar.button("Reset", type="primary")
                         if st.sidebar.button("Add Location"): 
                             
@@ -426,6 +433,16 @@ def app():
                                     # icon = folium.features.CustomIcon('/content/drive/My Drive/Colab Notebooks/pushpin.png', icon_size=(30,30))
                                     folium.Marker([lat, long], popup = name, icon=folium.Icon(color = 'red', icon = "thumb-tack", prefix='fa')).add_to(Map)
                                     folium_static(Map, width = 1200, height = 500)
+                                    
+                                    # Set the flag to show the reset button
+                                    st.session_state.location_added = True
+                                                        
+                            # Show the reset button if a location has been added
+                        if st.session_state.location_added:
+                                if st.sidebar.button("Reset"):
+                                    # Reset the form fields by clearing session state variables
+                                    st.session_state.location_added = False
+                                    st.experimental_rerun()   
                                     
         
         ############################################################################################################                   
@@ -817,24 +834,24 @@ def app():
                     
                 col1, col2 = st.columns(2)
                 col1.metric(label = "Sunrise",       value = dt['forecast']['forecastday'][i]['astro']['sunrise'])
-                col1.image('SunriseIcon.png', width = 150)
+                col1.image('images/SunriseIcon.png', width = 150)
                 col2.metric(label = "Sunset",        value = dt['forecast']['forecastday'][i]['astro']['sunset'])
-                col2.image('SunsetIcon.png', width = 150)
+                col2.image('images/SunsetIcon.png', width = 150)
                     
                 st.write('')
                     
                 col1, col2, col3, col4, col5 = st.columns(5)
                 uv = {1: 'Low', 2: 'Low', 3: 'Moderate', 4: 'Moderate', 5: 'Moderate', 6: 'High', 7: 'High', 8: 'Very High', 9: 'Very High', 10: 'Very High', '11': 'Extreme'}
                 col1.metric(label = "UV Index",      value = uv[dt['current']["uv"]])
-                col1.image('UVIcon.png', width = 50)
+                col1.image('images/UVIcon.png', width = 50)
                 col2.metric(label = "Humidity",      value = str(dt['current']["humidity"]) + ' %')
-                col2.image('HumidityIcon.png', width = 50)
+                col2.image('images/HumidityIcon.png', width = 50)
                 col3.metric(label = "Precipitation", value = str(dt['current']["precip_in"]) + ' in')
-                col3.image('PrecipitationIcon.png', width = 50)
+                col3.image('images/PrecipitationIcon.png', width = 50)
                 col4.metric(label = "Pressure",      value = str(round(dt['current']["pressure_in"])) + ' inHg')
-                col4.image('PressureIcon.png', width = 50)
+                col4.image('images/PressureIcon.png', width = 50)
                 col5.metric(label = "Wind",          value = str(dt['current']["wind_mph"]) + ' mph')
-                col5.image('WindIcon.png', width = 50)
+                col5.image('images/WindIcon.png', width = 50)
                
                 st.write('')
                             
@@ -946,7 +963,7 @@ def app():
         
     with tab5:
         
-        st.write('Flood Report')
+        # st.write('Flood Report')
         
         if region and council and ward:
                         
@@ -1078,8 +1095,7 @@ def app():
         # ------------------------------------------------------------- #
         
     with tab7:
-        
-        
+                
         # Set the title of the Streamlit app
         # st.title("Project Development Weekly Timeline")
 
@@ -1156,144 +1172,174 @@ def app():
         
         ##############################################################################
         
-        # Collaborators information
-        collaborators = [
-            {  
-                "name": "Younkap Duplex",
-                "designation": "Project Manager",
-                "image": "YND.jpeg",
-                "linkedin": "https://www.linkedin.com/in/duplex-younkap-nina-engineer/"
-            },
-            {
-                "name": "Abhishek Dutta",
-                "designation": "ML Engineer",
-                "image": "AD.jpeg",
-                "linkedin": "https://www.linkedin.com/in/abhishekdutta404/"
-            },
-            {
-                "name": "Adham Walid",
-                "designation": "Data Scientist",
-                "image": "AW.jpeg",
-                "linkedin": "http://linkedin.com/in/adhamwalid-engineer"
-            },
-            {
-                "name": "Anant Vats",
-                "designation": "Data Scientist",
-                "image": "AV.jpeg",
-                "linkedin": "http://www.linkedin.com/in/anant-vats-4122ab6"
-            },
-            {
-                "name": "Denis Mwangi",
-                "designation": "Junior ML Engineer",
-                "image": "DM.jpeg",
-                "linkedin": "https://www.linkedin.com/in/kingkingori/"
-            },
-            {  
-                "name": "Indri Adisoemarta",
-                "designation": "Junior ML Engineer",
-                "image": "IA.jpeg",
-                "linkedin": "https://www.linkedin.com/in/indri-adisoemarta"
-            },
-            {  
-                "name": "Jose Mojica Perez",
-                "designation": "ML Engineer",
-                "image": "JMP.jpeg",
-                "linkedin": "https://www.linkedin.com/in/jlmojicaperez/"
-            },
-            {  
-                "name": "Krishna Karthik Polisetty",
-                "designation": "Junior ML Engineer",
-                "image": "KKP.jpeg",
-                "linkedin": "https://www.linkedin.com/in/karthikpolisetty/"
-            },
-            {  
-                "name": "Omkar Bhatkande",
-                "designation": "Data Scientist",
-                "image": "OB.jpeg",
-                "linkedin": "https://www.linkedin.com/in/omkar-bhatkande/"
-            },
-            {
-                "name": "Raza Mehar",
-                "designation": "Data Scientist",
-                "image": "RM.jpeg",
-                "linkedin": "https://www.linkedin.com/in/razamehar/"
-            },
-            {
-                "name": "Tanaya Sharma",
-                "designation": "ML Engineer",
-                "image": "TS.jpeg",
-                "linkedin": "https://www.linkedin.com/in/tanaya-sharma-080b529b"
-            },
-            {
-                "name": "Utpal Mishra",
-                "designation": "ML Engineer & Developer",
-                "image": "UM.jpeg",
-                "linkedin": "https://www.linkedin.com/in/utpal-mishra/"
-            },
-            {
-                "name": "Vignesha Jayakumar",
-                "designation": "ML Engineer",
-                "image": "VJ.jpeg",
-                "linkedin": "https://www.linkedin.com/in/vigneshaj/"
-            },
-            {
-                "name": "Viktoriia",
-                "designation": "Data Scientist",
-                "image": "V.jpeg",
-                "linkedin": "https://www.linkedin.com/in/viktoriia-voloshyna-phd/"
-            },
-            {
-                "name": "Zainab Akhtar",
-                "designation": "ML Engineer",
-                "image": "ZA.jpeg",
-                "linkedin": "https://www.linkedin.com/in/zainabakhtar/"
-            }
-        ]
-        
-        
-        # Display the first collaborator in the center
-        center_col = st.columns([1, 1, 1])[1]  # Create three columns and use the middle one
-
-        with center_col:
-            st.header("Project Lead")
             st.write("")
             st.write("")
-        
-            st.image(collaborators[0]["image"], width = 150)
-            st.subheader(collaborators[0]["name"])
-            st.subheader(collaborators[0]['designation']) # st.write(f"**Designation:** {collaborators[0]['designation']}")
-            st.write(f"[LinkedIn Profile]({collaborators[0]['linkedin']})")
-
-        st.divider()
-        
-        st.header("Project Collaborators")
-        st.write("")
-        st.write("")
-        
-        # Use a loop to display collaborators in pairs
-        for i in range(1, len(collaborators), 2):
-            col1, col2 = st.columns(2)
+            st.header("Project Collaborators")
+            st.write("")
+            st.write("")
             
-            # First collaborator in the row
-            with col1:
-                st.image(collaborators[i]["image"], width=150)
-                st.subheader(collaborators[i]["name"])
-                st.subheader(collaborators[i]['designation'])
-                st.write(f"[LinkedIn Profile]({collaborators[i]['linkedin']})")
+            # Add a black border to the image
+            def add_border(image_path, border_size=10, color='black'):
+                image = Image.open(image_path)
+                bordered_image = ImageOps.expand(image, border=border_size, fill=color)
+                return bordered_image
+                    
+            # Collaborators information
+            collaborators = [
+                {
+                    "name": "Abhishek Dutta",
+                    "designation": "ML Engineer",
+                    "image": "images/AD.jpeg",
+                    "linkedin": "https://www.linkedin.com/in/abhishekdutta404/"
+                },
+                {
+                    "name": "Adham Walid",
+                    "designation": "Data Scientist",
+                    "image": "images/AW.jpeg",
+                    "linkedin": "http://linkedin.com/in/adhamwalid-engineer"
+                },
+                {
+                    "name": "Anant Vats",
+                    "designation": "Data Scientist",
+                    "image": "images/AV.jpeg",
+                    "linkedin": "http://www.linkedin.com/in/anant-vats-4122ab6"
+                },
+                {
+                    "name": "Denis Mwangi",
+                    "designation": "Junior ML Engineer",
+                    "image": "images/DM.jpeg",
+                    "linkedin": "https://www.linkedin.com/in/kingkingori/"
+                },
+                {  
+                    "name": "Indri Adisoemarta",
+                    "designation": "Junior ML Engineer",
+                    "image": "images/IA.jpeg",
+                    "linkedin": "https://www.linkedin.com/in/indri-adisoemarta"
+                },
+                {  
+                    "name": "Jose Mojica Perez",
+                    "designation": "ML Engineer",
+                    "image": "images/JMP.jpeg",
+                    "linkedin": "https://www.linkedin.com/in/jlmojicaperez/"
+                },
+                {  
+                    "name": "Krishna Karthik Polisetty",
+                    "designation": "Junior ML Engineer",
+                    "image": "images/KKP.jpeg",
+                    "linkedin": "https://www.linkedin.com/in/karthikpolisetty/"
+                },
+                {  
+                    "name": "Omkar Bhatkande",
+                    "designation": "Data Scientist",
+                    "image": "images/OB.jpeg",
+                    "linkedin": "https://www.linkedin.com/in/omkar-bhatkande/"
+                },
+                {
+                    "name": "Raza Mehar",
+                    "designation": "Data Scientist",
+                    "image": "images/RM.jpeg",
+                    "linkedin": "https://www.linkedin.com/in/razamehar/"
+                },
+                {
+                    "name": "Tanaya Sharma",
+                    "designation": "ML Engineer",
+                    "image": "images/TS.jpeg",
+                    "linkedin": "https://www.linkedin.com/in/tanayasharma/"
+                },
+                {
+                    "name": "Utpal Mishra",
+                    "designation": "ML Engineer & Developer",
+                    "image": "images/UM.jpeg",
+                    "linkedin": "https://www.linkedin.com/in/utpal-mishra/"
+                },
+                {
+                    "name": "Vignesha Jayakumar",
+                    "designation": "ML Engineer",
+                    "image": "images/VJ.jpeg",
+                    "linkedin": "https://www.linkedin.com/in/vigneshaj/"
+                },
+                {
+                    "name": "Viktoriia",
+                    "designation": "Data Scientist",
+                    "image": "images/V.jpeg",
+                    "linkedin": "https://www.linkedin.com/in/viktoriia-voloshyna-phd/"
+                },
+                {  
+                    "name": "Younkap Duplex",
+                    "designation": "Project Manager",
+                    "image": "images/YND.jpeg",
+                    "linkedin": "https://www.linkedin.com/in/duplex-younkap-nina-engineer/"
+                },
+                {
+                    "name": "Zainab Akhtar",
+                    "designation": "ML Engineer",
+                    "image": "images/ZA.jpeg",
+                    "linkedin": "https://www.linkedin.com/in/zainabakhtar/"
+                }
+            ]
+                            
+            # Use a loop to display collaborators in pairs
+            for i in range(0, len(collaborators), 3):
+                col1, col2, col3, col4, col5, col6 = st.columns(6)  # Adjust the width ratio of columns as needed
 
-            # Second collaborator in the row (if exists)
-            if i + 1 < len(collaborators):
-                with col2:
-                    st.image(collaborators[i + 1]["image"], width=150)
-                    st.subheader(collaborators[i + 1]["name"])
-                    st.subheader(collaborators[i + 1]['designation'])
-                    st.write(f"[LinkedIn Profile]({collaborators[i + 1]['linkedin']})")
-                
-            st.write("---")
+                with col1:
+                    # Center align the image using HTML and CSS
+                    st.markdown(
+                        f"""
+                        <div style="display: flex; justify-content: center;">
+                            <img src="data:image/jpeg;base64,{st.image(add_border(collaborators[i]["image"], border_size=10, color='black'), width=30, use_column_width=True).data}" style="border-radius: 50%;">
+                        </div>
+                        """, unsafe_allow_html=True
+                    )
 
+                with col2:                    
+                    st.write("")
+                    st.write("")
+                    st.write("")
+                    st.subheader(collaborators[i]["name"])
+                    st.text(collaborators[i]['designation'])
+                    st.write(f"[LinkedIn Profile]({collaborators[i]['linkedin']})")
+                    
+                with col3:
+                    # Center align the image using HTML and CSS
+                    st.markdown(
+                        f"""
+                        <div style="display: flex; justify-content: center;">
+                            <img src="data:image/jpeg;base64,{st.image(add_border(collaborators[i+1]["image"], border_size=10, color='black'), width=150, use_column_width=True).data}" style="border-radius: 50%;">
+                        </div>
+                        """, unsafe_allow_html=True
+                    )
 
-        # Footer
-        st.write("### Thank you to all our collaborators! 🎉")
+                with col4:                    
+                    st.write("")
+                    st.write("")
+                    st.write("")
+                    st.subheader(collaborators[i+1]["name"])
+                    st.text(collaborators[i+1]['designation'])
+                    st.write(f"[LinkedIn Profile]({collaborators[i+1]['linkedin']})")
+                    
+                with col5:
+                    # Center align the image using HTML and CSS
+                    st.markdown(
+                        f"""
+                        <div style="display: flex; justify-content: center;">
+                            <img src="data:image/jpeg;base64,{st.image(add_border(collaborators[i+2]["image"], border_size=10, color='black'), width=150, use_column_width=True).data}" style="border-radius: 50%;">
+                        </div>
+                        """, unsafe_allow_html=True
+                    )
+
+                with col6:                    
+                    st.write("")
+                    st.write("")
+                    st.write("")
+                    st.subheader(collaborators[i+2]["name"])
+                    st.text(collaborators[i+2]['designation'])
+                    st.write(f"[LinkedIn Profile]({collaborators[i+2]['linkedin']})")
+
+                st.write("---") 
+             
+            # Footer
+            st.write("### Thank you to all our collaborators! 🎉")
     
     #################################################################
         
