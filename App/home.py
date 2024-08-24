@@ -1187,73 +1187,73 @@ def app():
             # Collaborators information
             collaborators = [
                 {
-                    "name": "Abhishek Dutta",
+                    "name": "Abhishek",
                     "designation": "ML Engineer",
                     "image": "images/AD.jpeg",
                     "linkedin": "https://www.linkedin.com/in/abhishekdutta404/"
                 },
                 {
-                    "name": "Adham Walid",
+                    "name": "Adham",
                     "designation": "Data Scientist",
                     "image": "images/AW.jpeg",
                     "linkedin": "http://linkedin.com/in/adhamwalid-engineer"
                 },
                 {
-                    "name": "Anant Vats",
+                    "name": "Anant",
                     "designation": "Data Scientist",
                     "image": "images/AV.jpeg",
                     "linkedin": "http://www.linkedin.com/in/anant-vats-4122ab6"
                 },
                 {
-                    "name": "Denis Mwangi",
+                    "name": "Denis",
                     "designation": "Junior ML Engineer",
                     "image": "images/DM.jpeg",
                     "linkedin": "https://www.linkedin.com/in/kingkingori/"
                 },
                 {  
-                    "name": "Indri Adisoemarta",
+                    "name": "Indri",
                     "designation": "Junior ML Engineer",
                     "image": "images/IA.jpeg",
                     "linkedin": "https://www.linkedin.com/in/indri-adisoemarta"
                 },
                 {  
-                    "name": "Jose Mojica Perez",
+                    "name": "Jose",
                     "designation": "ML Engineer",
                     "image": "images/JMP.jpeg",
                     "linkedin": "https://www.linkedin.com/in/jlmojicaperez/"
                 },
                 {  
-                    "name": "Krishna Karthik Polisetty",
+                    "name": "Krishna",
                     "designation": "Junior ML Engineer",
                     "image": "images/KKP.jpeg",
                     "linkedin": "https://www.linkedin.com/in/karthikpolisetty/"
                 },
                 {  
-                    "name": "Omkar Bhatkande",
+                    "name": "Omkar",
                     "designation": "Data Scientist",
                     "image": "images/OB.jpeg",
                     "linkedin": "https://www.linkedin.com/in/omkar-bhatkande/"
                 },
                 {
-                    "name": "Raza Mehar",
+                    "name": "Raza",
                     "designation": "Data Scientist",
                     "image": "images/RM.jpeg",
                     "linkedin": "https://www.linkedin.com/in/razamehar/"
                 },
                 {
-                    "name": "Tanaya Sharma",
+                    "name": "Tanaya",
                     "designation": "ML Engineer",
                     "image": "images/TS.jpeg",
                     "linkedin": "https://www.linkedin.com/in/tanayasharma/"
                 },
                 {
-                    "name": "Utpal Mishra",
+                    "name": "Utpal",
                     "designation": "ML Engineer & Developer",
                     "image": "images/UM.jpeg",
                     "linkedin": "https://www.linkedin.com/in/utpal-mishra/"
                 },
                 {
-                    "name": "Vignesha Jayakumar",
+                    "name": "Vignesha",
                     "designation": "ML Engineer",
                     "image": "images/VJ.jpeg",
                     "linkedin": "https://www.linkedin.com/in/vigneshaj/"
@@ -1265,13 +1265,13 @@ def app():
                     "linkedin": "https://www.linkedin.com/in/viktoriia-voloshyna-phd/"
                 },
                 {  
-                    "name": "Younkap Duplex",
+                    "name": "Duplex",
                     "designation": "Project Manager",
                     "image": "images/YND.jpeg",
                     "linkedin": "https://www.linkedin.com/in/duplex-younkap-nina-engineer/"
                 },
                 {
-                    "name": "Zainab Akhtar",
+                    "name": "Zainab",
                     "designation": "ML Engineer",
                     "image": "images/ZA.jpeg",
                     "linkedin": "https://www.linkedin.com/in/zainabakhtar/"
@@ -1284,13 +1284,16 @@ def app():
 
                 with col1:
                     # Center align the image using HTML and CSS
-                    st.markdown(
-                        f"""
-                        <div style="display: flex; justify-content: center;">
-                            <img src="data:image/jpeg;base64,{st.image(add_border(collaborators[i]["image"], border_size=10, color='black'), width=30, use_column_width=True).data}" style="border-radius: 50%;">
-                        </div>
-                        """, unsafe_allow_html=True
-                    )
+                    # st.markdown(
+                    #     f"""
+                    #     <div style="display: flex; justify-content: center;">
+                    #         <img src="data:image/jpeg;base64,{st.image(add_border(collaborators[i]["image"], border_size=10, color='black'), width=30, use_column_width=True).data}" style="border-radius: 50%;">
+                    #     </div>
+                    #     """, unsafe_allow_html=True
+                    # )
+                    
+                    st.image(add_border(collaborators[i]["image"], border_size=10, color='black'), width=150, use_column_width=True).data
+                    
 
                 with col2:                    
                     st.write("")
@@ -1302,13 +1305,16 @@ def app():
                     
                 with col3:
                     # Center align the image using HTML and CSS
-                    st.markdown(
-                        f"""
-                        <div style="display: flex; justify-content: center;">
-                            <img src="data:image/jpeg;base64,{st.image(add_border(collaborators[i+1]["image"], border_size=10, color='black'), width=150, use_column_width=True).data}" style="border-radius: 50%;">
-                        </div>
-                        """, unsafe_allow_html=True
-                    )
+                    # st.markdown(
+                    #     f"""
+                    #     <div style="display: flex; justify-content: center;">
+                    #         <img src="data:image/jpeg;base64,{st.image(add_border(collaborators[i+1]["image"], border_size=10, color='black'), width=150, use_column_width=True).data}" style="border-radius: 50%;">
+                    #     </div>
+                    #     """, unsafe_allow_html=True
+                    # )
+                    
+                    st.image(add_border(collaborators[i+1]["image"], border_size=10, color='black'), width=150, use_column_width=True).data
+                    
 
                 with col4:                    
                     st.write("")
@@ -1320,13 +1326,16 @@ def app():
                     
                 with col5:
                     # Center align the image using HTML and CSS
-                    st.markdown(
-                        f"""
-                        <div style="display: flex; justify-content: center;">
-                            <img src="data:image/jpeg;base64,{st.image(add_border(collaborators[i+2]["image"], border_size=10, color='black'), width=150, use_column_width=True).data}" style="border-radius: 50%;">
-                        </div>
-                        """, unsafe_allow_html=True
-                    )
+                    # st.markdown(
+                    #     f"""
+                    #     <div style="display: flex; justify-content: center;">
+                    #         <img src="data:image/jpeg;base64,{st.image(add_border(collaborators[i+2]["image"], border_size=10, color='black'), width=150, use_column_width=True).data}" style="border-radius: 50%;">
+                    #     </div>
+                    #     """, unsafe_allow_html=True
+                    # )
+                    
+                    st.image(add_border(collaborators[i+2]["image"], border_size=10, color='black'), width=150, use_column_width=True).data
+                    
 
                 with col6:                    
                     st.write("")
